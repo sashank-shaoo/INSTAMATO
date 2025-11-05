@@ -7,7 +7,7 @@ Instamato is a full-stack food delivery platform inspired by Zomato — allowing
 ## 📸 Preview
 
 <p align="center">
-  <img src="./assets/react.svg" alt="Instamato Home" width="700"/>
+  <img src="../InstaMato/frontend/src/assets/react.svg" alt="Instamato Home" width="700"/>
 </p>
 
 ---
