@@ -1,0 +1,1 @@
+- [x] Move BottomNav up by 10px in frontend/src/styles/styles.css

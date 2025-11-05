@@ -1,0 +1,20 @@
+:root {
+  /* Light theme variables */
+  --bg-color: #212121;
+  --bg-container: #a9a4a4;
+  --text-color: #333333;
+  --input-bg: #f9f9f9;
+  --input-border: #cccccc;
+  --button-bg: #007bff;
+  --button-text: #ffffff;
+  --button-hover: #0056b3;
+  --link-color: #02395b;
+  --error-color: #dc3545;
+  --nav-bg: rgba(0, 0, 0, 0.8);
+  --nav-text: white;
+  --font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --font-size: 16px;
+  --border-radius: 15px;
+  --padding: 12px;
+  --margin: 10px;
+}

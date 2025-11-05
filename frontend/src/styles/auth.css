@@ -1,0 +1,121 @@
+html,
+body {
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+.partner-profile {
+  min-height: 100vh;
+  width: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+}
+
+/* Profile Card */
+.profile-card {
+  width: 340px;
+  background: #161b22;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.profile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #2d333b;
+}
+.avatarP {
+  font-size: 2.5rem;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.business-info {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.business-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.address {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin: 2px 0 0;
+}
+
+.status{
+  border: 2px solid #fb00ff;
+  width: auto;
+  height: auto;
+  padding-right: 5px;
+  padding-left: 5px;
+  padding-bottom: 5px;
+  border-radius: 25px;
+  margin-bottom: 40px;
+}
+.status p{
+  font-size: small;
+  color:#fb00ff;
+}
+
+/* Stats */
+.profile-stats {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Video Grid */
+.video-grid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  width: 340px;
+}
+
+.video-card {
+  background: #161b22;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.video-thumb {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}

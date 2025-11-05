@@ -1,0 +1,258 @@
+/* Full-page background */
+.whole-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #212121;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Centered login box */
+.create-food-container {
+  background: rgba(20, 20, 20, 0.9);
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  color: #fff;
+  transition: all 0.3s ease;
+  overflow: hidden; /* keep children inside rounded card */
+}
+
+.create-food-container:hover {
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+}
+
+/* Title */
+.create-food-form h1 {
+  margin-bottom: 1.8rem;
+  font-weight: 500;
+  font-size: 1.6rem;
+}
+
+/* Form fields */
+.form-group {
+  margin-bottom: 1.4rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  color: #ccc;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background: #171717;
+  border: none;
+  outline: none;
+  color: #fff;
+  border-radius: 0.8rem;
+  font-size: 0.95rem;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  background: #1f1f1f;
+  box-shadow: 0 0 0 2px #00c4ff;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Login button */
+.create-food-form button[type="submit"] {
+  width: 100%;
+  padding: 0.8rem;
+  background: linear-gradient(90deg, #00c4ff, #0080ff);
+  border: none;
+  border-radius: 0.8rem;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-food-form button[type="submit"]:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #00aaff, #005cff);
+}
+
+/* File drop zone styles */
+.file-drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 0.8rem;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, background-color 0.3s;
+  background-color: #171717;
+}
+
+.file-drop-zone:hover {
+  border-color: #00c4ff;
+  background-color: rgba(0, 196, 255, 0.05);
+}
+
+.file-drop-zone.drag-over {
+  border-color: #00c4ff;
+  background-color: rgba(0, 196, 255, 0.1);
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.drop-zone-content svg {
+  color: #fff;
+  opacity: 0.7;
+}
+
+.drop-zone-content p {
+  margin: 0;
+  font-size: 1rem;
+  color: #fff;
+}
+
+/* File selected styles */
+.file-selected {
+  border: 1px solid #ccc;
+  border-radius: 0.8rem;
+  padding: 0.75rem;
+  background-color: #171717;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.selected-file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.selected-file-info svg {
+  color: #fff;
+  opacity: 0.7;
+}
+
+.selected-file-info span {
+  font-size: 0.9rem;
+  color: #fff;
+  max-width: 60%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.change-file-btn {
+  padding: 6px 12px;
+  background: linear-gradient(90deg, #00c4ff, #0080ff);
+  color: #fff;
+  border: none;
+  border-radius: 0.8rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.change-file-btn:hover {
+  background: linear-gradient(90deg, #00aaff, #005cff);
+}
+
+/* File preview styles */
+.file-preview {
+  border: 1px solid #ccc;
+  border-radius: 0.8rem;
+  padding: 0.75rem;
+  background-color: #171717;
+  overflow: hidden; /* stay within card */
+}
+
+.preview-video {
+  width: 100%;
+  max-height: 260px;
+  border-radius: 0.8rem;
+  margin-bottom: 1rem;
+  object-fit: contain;
+}
+
+.file-info {
+  margin-bottom: 1rem;
+}
+
+.file-info p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #fff;
+  word-break: break-word;
+}
+
+.preview-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirm-btn,
+.cancel-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s;
+}
+
+.confirm-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.confirm-btn:hover {
+  background-color: #218838;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #c82333;
+}
+
+/* Responsive - Mobile first */
+@media (max-width: 480px) {
+  .create-food-container {
+    width: 90%;
+    padding: 2rem 1.5rem;
+  }
+
+  .create-food-form h1 {
+    font-size: 1.4rem;
+  }
+
+  .selected-file-info span {
+    max-width: 55%;
+  }
+}

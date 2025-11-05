@@ -1,0 +1,119 @@
+/* Full-page background */
+.whole-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #212121;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Centered login box */
+.container {
+   background: rgba(20, 20, 20, 0.9);
+  border-radius: 1.5rem;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.container:hover {
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+}
+
+/* Title */
+.container h1 {
+  margin-bottom: 1.8rem;
+  font-weight: 500;
+  font-size: 1.6rem;
+}
+
+/* Form fields */
+.form-group {
+  margin-bottom: 1.4rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  color: #ccc;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  background: #171717;
+  border: none;
+  outline: none;
+  color: #fff;
+  border-radius: 0.8rem;
+  font-size: 0.95rem;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+  background: #1f1f1f;
+  box-shadow: 0 0 0 2px #00c4ff;
+}
+
+/* Login button */
+button[type="submit"] {
+  width: 100%;
+  padding: 0.8rem;
+  background: linear-gradient(90deg, #00c4ff, #0080ff);
+  border: none;
+  border-radius: 0.8rem;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #00aaff, #005cff);
+}
+
+/* Error message */
+.error-message {
+  background: rgba(255, 0, 0, 0.15);
+  color: #ff6b6b;
+  padding: 0.6rem;
+  border-radius: 0.6rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Register link */
+.link {
+  margin-top: 1rem;
+}
+
+.link a {
+  color: #00c4ff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.link a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive - Mobile first */
+@media (max-width: 480px) {
+  .container {
+    width: 90%;
+    padding: 2rem 1.5rem;
+  }
+
+  .container h1 {
+    font-size: 1.4rem;
+  }
+}

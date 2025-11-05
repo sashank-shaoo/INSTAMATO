@@ -1,0 +1,77 @@
+/* =========================
+   Bottom Navigation Styles
+   ========================= */
+.bottom-nav {
+  position: fixed;
+  bottom: 8px;
+  border-radius: 15px;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  width: 97%;
+  height: 70px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  /* Semi-transparent gradient background */
+  background: linear-gradient(
+    180deg,
+    rgba(30, 30, 30, 0.7) 0%,
+    rgba(10, 10, 10, 0.85) 100%
+  );
+  backdrop-filter: blur(12px); /* The glass blur effect */
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+
+/* Make links fill their area */
+.bottom-nav a {
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+}
+
+/* Each nav item */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #d1d1d1;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  gap: 4px;
+}
+
+/* Icons */
+.nav-icon {
+  width: 26px;
+  height: 26px;
+  stroke: #b3b3b3;
+  transition: all 0.3s ease;
+}
+
+/* Hover + Active effects */
+.nav-item:hover,
+.bottom-nav a.active .nav-item {
+  color: #fff;
+  transform: translateY(-4px);
+}
+
+.nav-item:hover .nav-icon,
+.bottom-nav a.active .nav-icon {
+  stroke: #fff;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+}
+
+/* Text */
+.nav-item span {
+  font-size: 0.75rem;
+  letter-spacing: 0.4px;
+}
+
+/* Ensure content isn't hidden */
+body {
+  padding-bottom: 70px; /* equal to navbar height */
+}
