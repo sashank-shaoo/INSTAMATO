@@ -1,2 +1,13 @@
-# INSTAMATO
-A full-stack food delivery app where users can browse restaurants and food partners can manage their profiles and menus.
+# 🍅 Instamato
+
+Instamato is a full-stack food delivery platform inspired by Zomato — allowing users to browse restaurants and food partners to manage their profiles and menus.
+
+---
+
+## 📸 Preview
+
+<p align="center">
+  <img src="./assets/instamato-home.png" alt="Instamato Home" width="700"/>
+</p>
+
+---
