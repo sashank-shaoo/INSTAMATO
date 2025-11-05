@@ -174,7 +174,6 @@ button:hover {
   flex-direction: column;
   justify-content: flex-end;
   pointer-events: all;
-
 }
 
 /* New: Ensures Visit Button never obscured by Bottom Nav */
@@ -183,7 +182,6 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  
 }
 
 .action-buttons {
@@ -256,7 +254,28 @@ button:hover {
   position: relative;
   pointer-events: all;
 }
-
+.user-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: linear-gradient(135deg, #a855f7, #7e22ce);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  user-select: none;
+  cursor: default;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.user-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
 
 .partner-link {
   margin-top: 16px;
@@ -306,8 +325,6 @@ button:hover {
 }
 
 @media (max-width: 768px) {
-  
-
   .hero-section {
     margin-bottom: 32px;
   }

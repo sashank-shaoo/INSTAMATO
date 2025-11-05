@@ -1,6 +1,7 @@
 const foodPartnerDao = require("../dao/foodPartner.dao");
 const userDao = require("../dao/user.dao");
 const bcrypt = require("bcryptjs");
+const sendEmail = require("../services/email.service");
 const jwt = require("jsonwebtoken");
 
 // -------------------USER AUTH CONTROLLERS-------------------//
@@ -15,11 +16,12 @@ async function registerUser(req, res) {
 
     if (isUserAlredyExist) {
       return res.status(400).json({
-        message: "User alrady exists",
+        message: "Email already in use",
       });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
     const user = await userDao.createUser({
       fullName,

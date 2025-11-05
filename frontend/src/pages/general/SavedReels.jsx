@@ -91,10 +91,11 @@ const SavedVideos = () => {
             height: "100%",
             gap: "1rem",
           }}>
-          <div style={{
-            width: "13rem",
-            height: "10rem"
-          }}>
+          <div
+            style={{
+              width: "13rem",
+              height: "10rem",
+            }}>
             <img src="/food.svg" alt="food" />
           </div>
           <p>No Saved Video</p>
@@ -102,6 +103,7 @@ const SavedVideos = () => {
       ) : (
         videos.map((item) => (
           <div key={item.id} className="reel-item">
+            <div className="user-badge">👤 User SavedReel</div>
             <video
               className="video"
               src={item.videoUrl}
