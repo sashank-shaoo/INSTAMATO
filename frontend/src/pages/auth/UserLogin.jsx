@@ -7,16 +7,39 @@ import "../../styles/user/UserLogin.css";
 const UserLogin = () => {
   const navigate = useNavigate();
   const { showFlash } = useFlash();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
 
     try {
-      await axios.post("/auth/user/login", { email, password });
+      const response = await axios.post("/auth/user/login", {
+        email,
+        password,
+      });
+
+      // ✅ clear other role data
+      localStorage.removeItem("foodPartner");
+
+      // ✅ save user info
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
+      if (response.data.user || response.data.data) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify(response.data.user || response.data.data)
+        );
+      }
+
+      // ✅ set role
+      localStorage.setItem("role", "user");
+
       showFlash("Logged in successfully", "success");
       navigate("/");
-    } catch {
+    } catch (err) {
+      console.error("User login error:", err);
       showFlash("User Login error! Try again.", "error");
     }
   };
@@ -25,7 +48,6 @@ const UserLogin = () => {
     <div className="whole-page">
       <div className="container">
         <h1>User Login</h1>
-        {/* i have added autoComplete to improve form submition and improves UX and accessibility, inspired from CONSOLE SUGGESION */}
         <form onSubmit={handleSubmit} autoComplete="on">
           <div className="form-group">
             <label htmlFor="email">Email</label>

@@ -45,6 +45,9 @@ const UserProfile = ({ userData: propUserData }) => {
     } catch {
       showFlash("Logout failed", "error");
     } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("role");
       setLoggingOut(false);
     }
   };

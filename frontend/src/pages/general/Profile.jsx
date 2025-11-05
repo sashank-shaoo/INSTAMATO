@@ -46,12 +46,17 @@ const Profile = () => {
     return (
       <div
         style={{
-          textAlign: "center",
-          color: "#ccc",
-          marginTop: "30vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#d8861aff",
+          backgroundColor: "#1e1e1e",
+          height: "100vh",
           fontFamily: "Poppins, sans-serif",
         }}>
-        <p>Unable to load profile. Please log in again.</p>
+        <img src="/profile.svg" alt="Profile" />
+        <h1>Please log in again.</h1>
       </div>
     );
 

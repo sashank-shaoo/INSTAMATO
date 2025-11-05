@@ -82,7 +82,23 @@ const SavedVideos = () => {
   return (
     <div className="reels-container" ref={containerRef}>
       {videos.length === 0 ? (
-        <p className="no-saved-msg">You haven’t saved any videos yet.</p>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            gap: "1rem",
+          }}>
+          <div style={{
+            width: "13rem",
+            height: "10rem"
+          }}>
+            <img src="/food.svg" alt="food" />
+          </div>
+          <p>No Saved Video</p>
+        </div>
       ) : (
         videos.map((item) => (
           <div key={item.id} className="reel-item">

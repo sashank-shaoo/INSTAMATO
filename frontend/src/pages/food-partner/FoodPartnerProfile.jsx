@@ -10,20 +10,28 @@ export default function FoodPartnerProfile({ profileData: propProfileData }) {
   const navigate = useNavigate();
   const [profileData, setProfileData] = useState(propProfileData || null);
   const [videos, setVideos] = useState([]);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [loading, setLoading] = useState(true);
   const { showFlash } = useFlash();
 
+  // --- logged-in partner info ---
   const loggedInPartner = JSON.parse(localStorage.getItem("foodPartner"));
+  const partnerIdFromStorage =
+    loggedInPartner?._id?.toString() || loggedInPartner?.id?.toString();
 
-  const isOwner = !id || (loggedInPartner && (loggedInPartner._id === id || loggedInPartner.id === id));
+  // --- Determine ownership ---
+  const isOwner =
+    !id ||
+    (partnerIdFromStorage && id && partnerIdFromStorage === id.toString());
+
+  // --- Fetch profile data ---
   useEffect(() => {
     const fetchProfile = async () => {
-      if (propProfileData) {
-        setLoading(false);
-        return;
-      }
       try {
-        const response = await axios.get(`/food-partner/${id}`);
+        const partnerId = id || partnerIdFromStorage;
+        if (!partnerId) throw new Error("Missing partner ID");
+
+        const response = await axios.get(`/food-partner/${partnerId}`);
         const data =
           response.data.foodPartner || response.data || response.data.data;
         if (!data) throw new Error("Invalid response format from server");
@@ -31,10 +39,11 @@ export default function FoodPartnerProfile({ profileData: propProfileData }) {
         setProfileData(data);
         setVideos(data.foodItems || []);
       } catch (error) {
+        console.error("Error fetching partner:", error);
         if (error.response?.status === 401) {
           showFlash("Please login to continue", "error");
         } else {
-          showFlash("Error on Fetching food partner profile", "error");
+          showFlash("Error fetching food partner profile", "error");
         }
       } finally {
         setLoading(false);
@@ -42,31 +51,63 @@ export default function FoodPartnerProfile({ profileData: propProfileData }) {
     };
 
     fetchProfile();
-  }, [id, showFlash, propProfileData]);
+  }, [id, partnerIdFromStorage, showFlash, propProfileData]);
 
   // --- Icon Handlers ---
   const handleEdit = () => {
-    const partnerId = id || loggedInPartner?._id || loggedInPartner?.id;
+    const partnerId = id || partnerIdFromStorage;
     if (!partnerId) return showFlash("Partner ID not found", "error");
     navigate(`/food-partner/${partnerId}/edit`);
   };
 
   const handleCreate = () => navigate(`/create-food`);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("foodPartner");
-    showFlash("Logged out successfully", "success");
-    navigate("/login");
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await axios.get("/auth/food-partner/logout");
+      showFlash("Logged out successfully", "success");
+      navigate("/food-partner/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      showFlash("Error logging out", "error");
+    } finally {
+      setLoggingOut(false);
+    }
   };
 
-  if (loading) return <div className="partner-profile">Loading...</div>;
+  // --- Loading / not found ---
+  if (loading)
+    return (
+      <div className="partner-profile">
+         <div
+            style={{
+              height: "3.4rem",
+              width: "3.4rem",
+              margin: "auto"
+            }}>
+            <img src="/loader.svg" alt="loader" />
+            <p>Loading...</p>
+          </div>
+        </div>
+    );
   if (!profileData)
-    return <div className="partner-profile">Food partner not found</div>;
+    return (
+      <div className="partner-profile">
+        <div className="message-cont">
+          <p
+            style={{
+              color: "aqua",
+            }}>
+            No Data
+          </p>
+        </div>
+      </div>
+    );
 
   return (
     <div className="partner-profile">
-      {/* Profile Card */}
       <div className="profile-card">
         <div className="profile-top">
           <div className="avatar">
@@ -81,12 +122,12 @@ export default function FoodPartnerProfile({ profileData: propProfileData }) {
             <p className="address">{profileData.email}</p>
           </div>
 
-          {/* Icon Actions (Visible only if it's the owner) */}
+          {/* Icon Actions (visible only for owner) */}
           {isOwner && (
             <div className="status icons">
               <p>Partner Controller</p>
               <div className="icon-buttons">
-                {/* Edit Icon */}
+                {/* Edit */}
                 <div
                   className="icon-wrapper"
                   onClick={handleEdit}
@@ -105,7 +146,7 @@ export default function FoodPartnerProfile({ profileData: propProfileData }) {
                   </svg>
                 </div>
 
-                {/* Create Icon */}
+                {/* Create */}
                 <div
                   className="icon-wrapper"
                   onClick={handleCreate}
@@ -124,7 +165,7 @@ export default function FoodPartnerProfile({ profileData: propProfileData }) {
                   </svg>
                 </div>
 
-                {/* Logout Icon */}
+                {/* Logout */}
                 <div
                   className="icon-wrapper logout"
                   onClick={handleLogout}

@@ -14,12 +14,46 @@ const FoodPartnerLogin = () => {
 
     const email = e.target.email.value;
     const password = e.target.password.value;
+
     try {
-      await axios.post("/auth/food-partner/login", { email, password });
-      showFlash("Logging in FoodPartner", "success");
-      navigate("/create-food");
-    } catch {
-      showFlash("Food Partner Login errror", "error");
+      const response = await axios.post("/auth/food-partner/login", {
+        email,
+        password,
+      });
+      console.log("Login response:", response.data);
+
+      // ✅ Clear other role data
+      localStorage.removeItem("user");
+
+      // ✅ Save token
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
+
+      // ✅ Save food partner data
+      if (
+        response.data.foodPartner ||
+        response.data.data ||
+        response.data.user
+      ) {
+        localStorage.setItem(
+          "foodPartner",
+          JSON.stringify(
+            response.data.foodPartner ||
+              response.data.data ||
+              response.data.user
+          )
+        );
+      }
+
+      // ✅ Set role
+      localStorage.setItem("role", "foodPartner");
+
+      showFlash("Logged in successfully as Food Partner!", "success");
+      navigate("/profile");
+    } catch (error) {
+      console.error("Login error:", error);
+      showFlash("Food Partner login failed", "error");
     }
   };
 

@@ -239,96 +239,117 @@ const Home2 = () => {
 
   return (
     <div className="reels-container" ref={containerRef}>
-      {videos.map((item) => (
-        <div key={item.id} className="reel-item">
-          <video
-            className="video"
-            src={item.videoUrl}
-            ref={setVideoRef(item.id)}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            onClick={() => handleVideoClick(item.id)}
-          />
+      {videos.length === 0 ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            gap: "1rem",
+          }}>
+          <div
+            style={{
+              width: "13rem",
+              height: "10rem",
+            }}>
+            <img src="/food.svg" alt="food" />
+          </div>
+          <p>No Video Found</p>
+        </div>
+      ) : (
+        videos.map((item) => (
+          <div key={item.id} className="reel-item">
+            <video
+              className="video"
+              src={item.videoUrl}
+              ref={setVideoRef(item.id)}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              onClick={() => handleVideoClick(item.id)}
+            />
 
-          <div className="overlay">
-            <div className="overlay-bottom">
-              <p className="name" title={item.name}>
-                {item.name}
-              </p>
-              <p className="description" title={item.description}>
-                {item.description}
-              </p>
-              <Link
-                to={`/food-partner/${item.foodPartner}`}
-                className="visit-button">
-                Visit Store
-              </Link>
-            </div>
+            <div className="overlay">
+              <div className="overlay-bottom">
+                <p className="name" title={item.name}>
+                  {item.name}
+                </p>
+                <p className="description" title={item.description}>
+                  {item.description}
+                </p>
+                <Link
+                  to={`/food-partner/${item.foodPartner}`}
+                  className="visit-button">
+                  Visit Store
+                </Link>
+              </div>
 
-            <div className="action-buttons">
-              {/* Like */}
-              <button
-                className={`action-btn like-btn ${
-                  likedItems.has(item.id) ? "liked" : ""
-                }`}
-                onClick={() => toggleLike(item.id)}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="icon"
-                  viewBox="0 0 48 48">
-                  <path
-                    fill={likedItems.has(item.id) ? "red" : "none"}
+              <div className="action-buttons">
+                {/* Like */}
+                <button
+                  className={`action-btn like-btn ${
+                    likedItems.has(item.id) ? "liked" : ""
+                  }`}
+                  onClick={() => toggleLike(item.id)}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="icon"
+                    viewBox="0 0 48 48">
+                    <path
+                      fill={likedItems.has(item.id) ? "red" : "none"}
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="4"
+                      d="M15 8C8.925 8 4 12.925 4 19c0 11 13 21 20 23.326C31 40 44 30 44 19c0-6.075-4.925-11-11-11c-3.72 0-7.01 1.847-9 4.674A10.987 10.987 0 0 0 15 8Z"
+                    />
+                  </svg>
+                  <span className="count">{item.likesCount}</span>
+                </button>
+
+                {/* Comments */}
+                <button className="action-btn comment-btn">
+                  <svg
+                    className="icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <span className="count">{item.commentsCount}</span>
+                </button>
+
+                {/* Save */}
+                <button
+                  className={`action-btn save-btn ${
+                    savedItems.has(item.id) ? "saved" : ""
+                  }`}
+                  onClick={() => toggleSave(item.id)}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill={savedItems.has(item.id) ? "#FFD700" : "none"}
                     stroke="currentColor"
+                    strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth="4"
-                    d="M15 8C8.925 8 4 12.925 4 19c0 11 13 21 20 23.326C31 40 44 30 44 19c0-6.075-4.925-11-11-11c-3.72 0-7.01 1.847-9 4.674A10.987 10.987 0 0 0 15 8Z"
-                  />
-                </svg>
-                <span className="count">{item.likesCount}</span>
-              </button>
-
-              {/* Comments */}
-              <button className="action-btn comment-btn">
-                <svg
-                  className="icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span className="count">{item.commentsCount}</span>
-              </button>
-
-              {/* Save */}
-              <button
-                className={`action-btn save-btn ${
-                  savedItems.has(item.id) ? "saved" : ""
-                }`}
-                onClick={() => toggleSave(item.id)}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill={savedItems.has(item.id) ? "#FFD700" : "none"}
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="icon">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                </svg>
-                <span className="count">{item.bookMarkCount}</span>
-              </button>
+                    className="icon">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                  </svg>
+                  <span className="count">{item.bookMarkCount}</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 };

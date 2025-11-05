@@ -50,8 +50,8 @@
   margin: 0 0 1.2rem;
   background: linear-gradient(90deg, #00d2ff, #3a7bd5, #00d2ff);
   background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -text-fill-color: transparent;
   animation: flowingText 4s linear infinite;
 }
 
