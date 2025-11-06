@@ -67,6 +67,9 @@ async function getAllFoodPartners() {
     throw new Error("Failed to fetch Food Partners : " + error.message);
   }
 }
+async function getFoodPartnerByVerificationToken(token) {
+  return foodPartnerModel.findOne({ verificationToken: token });
+}
 
 module.exports = {
   getFoodPartnerByEmailWithPassword,
@@ -75,4 +78,5 @@ module.exports = {
   foodPartnerById,
   getAllFoodPartners,
   getFoodPartnerByEmail,
+  getFoodPartnerByVerificationToken,
 };

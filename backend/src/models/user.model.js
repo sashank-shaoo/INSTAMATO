@@ -4,20 +4,18 @@ const userSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
-      require: true,
+      required: true,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
-      require: true,
-    },
-    isVaerified: {
-      type: Boolean,
-      default: false,
+      required: true,
     },
     isVerified: {
       type: Boolean,

@@ -1,10 +1,11 @@
+const { get } = require("mongoose");
 const userModel = require("../models/user.model");
 
 //  Fetch user by email (excluding password)
 async function getUserByEmail(email) {
   try {
     const user = await userModel.findOne({ email }).select("-password");
-    if(!user){
+    if (!user) {
       throw new Error("User not found with Email");
     }
     return user;
@@ -48,23 +49,29 @@ async function getUserById(id) {
   }
 }
 
-//Update User 
+//Update User
 async function updateUser(id, data) {
-  try{
+  try {
     const user = await userModel.findByIdAndUpdate(
       id,
       { $set: data },
       { new: true, runValidators: true }
     );
-      return user;
-  }catch(error){
+    return user;
+  } catch (error) {
     throw new Error("Failed to Update User :" + error.message);
   }
+}
+//Verify user
+
+async function getUserByVerificationToken(token) {
+  return userModel.findOne({ verificationToken: token });
 }
 module.exports = {
   getUserByEmail,
   getUserByEmailWithPassword,
   createUser,
   getUserById,
-  updateUser
+  updateUser,
+  getUserByVerificationToken,
 };

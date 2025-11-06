@@ -4,32 +4,27 @@ const foodPartnerSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
     },
     contactName: {
       type: String,
-      require: true,
+      required: true,
     },
-    phone: {
-      type: Number,
-      require: true,
-    },
+    phone: { type: String, required: true, minlength: 10, maxlength: 15 },
     address: {
       type: String,
-      require: true,
+      required: true,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
-      require: true,
-    },
-    isVarified: {
-      type: Boolean,
-      default: false,
+      required: true,
     },
     isVerified: {
       type: Boolean,

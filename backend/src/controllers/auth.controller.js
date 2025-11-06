@@ -1,7 +1,8 @@
 const foodPartnerDao = require("../dao/foodPartner.dao");
 const userDao = require("../dao/user.dao");
 const bcrypt = require("bcryptjs");
-const sendEmail = require("../services/email.service");
+const sendEmail = require("../services/email.services");
+const generateVerificationToken = require("../utils/generateVerificationToken");
 const jwt = require("jsonwebtoken");
 
 // -------------------USER AUTH CONTROLLERS-------------------//
@@ -21,12 +22,15 @@ async function registerUser(req, res) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const { Etoken, expires } = generateVerificationToken();
 
     const user = await userDao.createUser({
       fullName,
       email,
       password: hashedPassword,
+      verificationToken: Etoken,
+      verificationTokenExpires: expires,
+      isVerified: false,
     });
 
     const token = jwt.sign(
@@ -36,9 +40,23 @@ async function registerUser(req, res) {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "7d", 
+        expiresIn: "7d",
       }
     );
+    // ✅ Send verification email
+    const verificationLink = `http://localhost:5173/verify-email?token=${token}`;
+    await sendEmail({
+      to: email,
+      subject: "Verify your email - InstaMato 🍔",
+      html: `
+        <h2>Welcome to InstaMato, ${fullName}!</h2>
+        <p>Click below to verify your email:</p>
+        <a href="${verificationLink}" target="_blank"
+          style="background:#00c4ff;color:#fff;padding:10px 16px;
+          border-radius:8px;text-decoration:none;">Verify Email</a>
+        <p>This link expires in 24 hours.</p>
+      `,
+    });
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -180,6 +198,7 @@ async function registerFoodPartner(req, res) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 15);
+    const { Etoken, expires } = generateVerificationToken();
 
     const foodPartner = await foodPartnerDao.createFoodPartner({
       name,
@@ -188,8 +207,23 @@ async function registerFoodPartner(req, res) {
       address,
       phone,
       contactName,
+      verificationToken: token,
+      verificationTokenExpires: expires,
+      isVerified: false,
     });
-
+    const verificationLink = `http://localhost:5173/verify-email?token=${token}`;
+    await sendEmail({
+      to: email,
+      subject: "Verify your email - InstaMato 🍔 (Food Partner)",
+      html: `
+        <h2>Welcome to InstaMato Partner Network, ${contactName || name}!</h2>
+        <p>Click below to verify your email:</p>
+        <a href="${verificationLink}" target="_blank"
+          style="background:#00c4ff;color:#fff;padding:10px 16px;
+          border-radius:8px;text-decoration:none;">Verify Email</a>
+        <p>This link expires in 24 hours.</p>
+      `,
+    });
     const token = jwt.sign(
       {
         id: foodPartner._id,
@@ -347,6 +381,42 @@ async function getCurrentUser(req, res) {
     });
   }
 }
+async function verifyEmail(req, res) {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).send("Missing verification token");
+
+    // try user first, then partner
+    let account = await userDao.getUserByVerificationToken(token);
+    let type = "user";
+    if (!account) {
+      account = await foodPartnerDao.getFoodPartnerByVerificationToken(token);
+      type = "partner";
+    }
+    if (!account) return res.status(400).send("Invalid or expired token");
+
+    if (
+      account.verificationTokenExpires &&
+      account.verificationTokenExpires < Date.now()
+    ) {
+      return res.status(400).send("Verification link has expired");
+    }
+
+    account.isVerified = true;
+    if (type === "user") account.isVaerified = true; // keep legacy flag in sync
+    if (type === "partner") account.isVarified = true;
+
+    account.verificationToken = undefined;
+    account.verificationTokenExpires = undefined;
+    await account.save();
+
+    return res.redirect(`${process.env.FRONTEND_URL}/verified-success`);
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    return res.status(500).send("Verification failed");
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
@@ -357,4 +427,5 @@ module.exports = {
   logoutFoodPartner,
   updateFoodPartner,
   getCurrentUser,
+  verifyEmail,
 };

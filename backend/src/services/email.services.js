@@ -1,14 +1,15 @@
-import { Resend } from "resend";
+const { Resend } = require("resend");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
     const data = await resend.emails.send({
-      from: "InstaMato 🍔 <no-reply@yourdomain.com>", // use your domain or default resend.dev
+      from: "InstaMato 🍔 <onboarding@resend.dev>",
       to,
       subject,
       html,
+      text: "Please view this email in an HTML compatible client.",
     });
     console.log("Email sent:", data);
   } catch (error) {
@@ -16,4 +17,4 @@ const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
-export default sendEmail;
+module.exports = sendEmail;
