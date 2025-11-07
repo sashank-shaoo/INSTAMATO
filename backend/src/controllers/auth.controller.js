@@ -13,38 +13,25 @@ async function registerUser(req, res) {
   try {
     const { fullName, email, password } = req.body;
 
-    const isUserAlredyExist = await userDao.getUserByEmail(email);
-
-    if (isUserAlredyExist) {
-      return res.status(400).json({
-        message: "Email already in use",
-      });
+    const existing = await userDao.getUserByEmail(email);
+    if (existing) {
+      return res.status(400).json({ message: "Email already in use" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const { Etoken, expires } = generateVerificationToken();
+    const { token, expires } = generateVerificationToken();
 
     const user = await userDao.createUser({
       fullName,
       email,
       password: hashedPassword,
-      verificationToken: Etoken,
+      verificationToken: token,
       verificationTokenExpires: expires,
       isVerified: false,
     });
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        role: "user",
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
-    // ✅ Send verification email
-    const verificationLink = `http://localhost:5173/verify-email?token=${token}`;
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+
     await sendEmail({
       to: email,
       subject: "Verify your email - InstaMato 🍔",
@@ -52,33 +39,20 @@ async function registerUser(req, res) {
         <h2>Welcome to InstaMato, ${fullName}!</h2>
         <p>Click below to verify your email:</p>
         <a href="${verificationLink}" target="_blank"
-          style="background:#00c4ff;color:#fff;padding:10px 16px;
-          border-radius:8px;text-decoration:none;">Verify Email</a>
+           style="background:#00c4ff;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;">
+           Verify Email
+        </a>
         <p>This link expires in 24 hours.</p>
       `,
     });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    res.status(201).json({
-      message: "User registered Successfully",
-      user: {
-        _id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-      },
+    return res.status(201).json({
+      message:
+        "User registered successfully. Please check your email to verify your account.",
     });
   } catch (error) {
     console.error("Error registering user:", error);
-    res.status(500).json({
-      message: "Failed to register user",
-      error: error.message,
-    });
+    res.status(500).json({ message: "Failed to register user" });
   }
 }
 
@@ -126,39 +100,33 @@ async function loginUser(req, res) {
     const { email, password } = req.body;
 
     const user = await userDao.getUserByEmailWithPassword(email);
+    if (!user)
+      return res.status(400).json({ message: "Invalid email or password" });
 
-    if (!user) {
-      return res.status(400).json({
-        message: "Invalid email or password",
-      });
+    if (!user.isVerified) {
+      return res.status(403).json({ message: "Email not verified" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
-      return res.status(400).json({
-        message: "Invalid email or password",
-      });
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
     const token = jwt.sign(
-      {
-        id: user._id,
-        role: "user",
-      },
+      { id: user._id, role: "user" },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: false,
+      sameSite: "Lax",
+      maxAge: 7 * 86400000,
     });
 
-    res.status(200).json({
-      message: "User login Successfully",
+    return res.status(200).json({
+      message: "User login successfully",
       user: {
         _id: user._id,
         fullName: user.fullName,
@@ -166,7 +134,7 @@ async function loginUser(req, res) {
       },
     });
   } catch (error) {
-    console.error("Error logging in user:", error);
+    console.error("Login error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -188,19 +156,15 @@ async function registerFoodPartner(req, res) {
   try {
     const { name, email, password, address, phone, contactName } = req.body;
 
-    const isFoodPartnerAlreadyExist =
-      await foodPartnerDao.getFoodPartnerByEmail(email);
-
-    if (isFoodPartnerAlreadyExist) {
-      return res.status(400).json({
-        message: "FoodPartner alrady exists",
-      });
+    const existing = await foodPartnerDao.getFoodPartnerByEmail(email);
+    if (existing) {
+      return res.status(400).json({ message: "Email already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 15);
-    const { Etoken, expires } = generateVerificationToken();
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const { token, expires } = generateVerificationToken();
 
-    const foodPartner = await foodPartnerDao.createFoodPartner({
+    const partner = await foodPartnerDao.createFoodPartner({
       name,
       email,
       password: hashedPassword,
@@ -211,102 +175,72 @@ async function registerFoodPartner(req, res) {
       verificationTokenExpires: expires,
       isVerified: false,
     });
-    const verificationLink = `http://localhost:5173/verify-email?token=${token}`;
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+
     await sendEmail({
       to: email,
-      subject: "Verify your email - InstaMato 🍔 (Food Partner)",
+      subject: "Verify your email - InstaMato Partner 🍔",
       html: `
-        <h2>Welcome to InstaMato Partner Network, ${contactName || name}!</h2>
-        <p>Click below to verify your email:</p>
+        <h2>Welcome ${contactName || name}!</h2>
         <a href="${verificationLink}" target="_blank"
-          style="background:#00c4ff;color:#fff;padding:10px 16px;
-          border-radius:8px;text-decoration:none;">Verify Email</a>
-        <p>This link expires in 24 hours.</p>
+           style="background:#00c4ff;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;">
+        Verify Email
+        </a>
       `,
     });
-    const token = jwt.sign(
-      {
-        id: foodPartner._id,
-        role: "partner",
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    res.status(201).json({
-      message: "FoodPartner registered Successfully",
-      foodPartner: {
-        _id: foodPartner._id,
-        name: foodPartner.name,
-        email: foodPartner.email,
-      },
+    return res.status(201).json({
+      message: "FoodPartner registered successfully. Please verify your email.",
     });
   } catch (error) {
-    console.error("Error registering food partner:", error);
-    res.status(500).json({
-      message: "Failed to register food partner",
-      error: error.message,
-    });
+    console.error("Error registering partner:", error);
+    res.status(500).json({ message: "Failed to register partner" });
   }
 }
+
 //_____________Login FoodPartner_____________//
 
 async function loginFoodPartner(req, res) {
   try {
     const { email, password } = req.body;
 
-    const foodPartner = await foodPartnerDao.getFoodPartnerByEmailWithPassword(
+    const partner = await foodPartnerDao.getFoodPartnerByEmailWithPassword(
       email
     );
+    if (!partner)
+      return res.status(401).json({ message: "Invalid email or password" });
 
-    if (!foodPartner) {
-      return res.status(401).json({
-        message: "Invalid email or password",
-      });
+    if (!partner.isVerified) {
+      return res.status(403).json({ message: "Email not verified" });
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      foodPartner.password
-    );
+    const valid = await bcrypt.compare(password, partner.password);
+    if (!valid)
+      return res.status(401).json({ message: "Invalid email or password" });
 
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        message: "Invalid email or password",
-      });
-    }
     const token = jwt.sign(
-      {
-        id: foodPartner._id,
-        role: "partner",
-      },
+      { id: partner._id, role: "partner" },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: false,
+      sameSite: "Lax",
+      maxAge: 7 * 86400000,
     });
 
-    res.status(200).json({
-      message: "FoodPartner login Successfully",
+    return res.status(200).json({
+      message: "FoodPartner login successful",
       foodPartner: {
-        _id: foodPartner._id,
-        name: foodPartner.name,
-        email: foodPartner.email,
+        _id: partner._id,
+        name: partner.name,
+        email: partner.email,
       },
     });
   } catch (error) {
-    console.error("Error logging in food partner:", error);
+    console.error("FoodPartner login error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -386,36 +320,81 @@ async function verifyEmail(req, res) {
     const { token } = req.query;
     if (!token) return res.status(400).send("Missing verification token");
 
-    // try user first, then partner
-    let account = await userDao.getUserByVerificationToken(token);
-    let type = "user";
-    if (!account) {
-      account = await foodPartnerDao.getFoodPartnerByVerificationToken(token);
-      type = "partner";
-    }
+    let account =
+      (await userDao.getUserByVerificationToken(token)) ||
+      (await foodPartnerDao.getFoodPartnerByVerificationToken(token));
+
     if (!account) return res.status(400).send("Invalid or expired token");
 
-    if (
-      account.verificationTokenExpires &&
-      account.verificationTokenExpires < Date.now()
-    ) {
-      return res.status(400).send("Verification link has expired");
+    if (account.verificationTokenExpires < Date.now()) {
+      return res.status(400).send("Verification link expired");
     }
 
     account.isVerified = true;
-    if (type === "user") account.isVaerified = true; // keep legacy flag in sync
-    if (type === "partner") account.isVarified = true;
-
     account.verificationToken = undefined;
     account.verificationTokenExpires = undefined;
+
     await account.save();
 
     return res.redirect(`${process.env.FRONTEND_URL}/verified-success`);
   } catch (error) {
-    console.error("Error verifying email:", error);
-    return res.status(500).send("Verification failed");
+    console.error("Verification error:", error);
+    res.status(500).send("Verification failed");
   }
 }
+async function resendVerificationEmail(req, res) {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Check for User or Partner
+    let account =
+      (await userDao.getUserByEmail(email)) ||
+      (await foodPartnerDao.getFoodPartnerByEmail(email));
+
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
+    if (account.isVerified) {
+      return res.status(400).json({ message: "Email already verified" });
+    }
+
+    // Generate fresh token
+    const { token, expires } = generateVerificationToken();
+
+    account.verificationToken = token;
+    account.verificationTokenExpires = expires;
+    await account.save();
+
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+
+    await sendEmail({
+      to: email,
+      subject: "Resend Verification - InstaMato 🍔",
+      html: `
+        <h2>Verify your email</h2>
+        <p>You requested a new verification link:</p>
+        <a href="${verificationLink}" target="_blank"
+           style="background:#00c4ff;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;">
+           Verify Email
+        </a>
+        <p>This link expires in 24 hours.</p>
+      `,
+    });
+
+    return res.status(200).json({
+      message: "New verification email sent",
+    });
+  } catch (error) {
+    console.error("Resend verification email error:", error);
+    res.status(500).json({ message: "Failed to resend verification email" });
+  }
+}
+
 
 module.exports = {
   registerUser,
@@ -428,4 +407,5 @@ module.exports = {
   updateFoodPartner,
   getCurrentUser,
   verifyEmail,
+  resendVerificationEmail,
 };

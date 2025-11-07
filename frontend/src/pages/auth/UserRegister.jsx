@@ -3,19 +3,21 @@ import axios from "../../utils/axiosInstance";
 import { useNavigate, Link } from "react-router-dom";
 import "../../styles/form.css";
 import { useFlash } from "../../context/FlashContext";
+
 const UserRegister = () => {
   const navigate = useNavigate();
   const { showFlash } = useFlash();
+
+  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
 
     const fullName = e.target.fullName.value;
     const email = e.target.email.value;
-    const password = e.target.password.value;
-    const confirmPassword = e.target.confirmPassword.value;
 
     if (password !== confirmPassword) {
       showFlash("Passwords do not match!", "error");
@@ -23,10 +25,24 @@ const UserRegister = () => {
     }
 
     try {
-      await axios.post("/auth/user/register", { fullName, email, password });
-      navigate("/");
+      setLoading(true);
+
+      await axios.post("/auth/user/register", {
+        fullName,
+        email,
+        password,
+      });
+
+      showFlash(
+        "Registration successful! Check your email to verify.",
+        "success"
+      );
+
+      navigate("/verify-pending"); // ✅ better UX page
     } catch {
-      showFlash("User Registration error! Try again.", "error");
+      showFlash("Registration failed. Try again.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,40 +50,45 @@ const UserRegister = () => {
     <div className="whole-page">
       <div className="container">
         <h1>User Registration</h1>
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="fullName">Full Name</label>
-            <input type="text" id="fullName" name="fullName" required />
+            <label>Full Name</label>
+            <input type="text" name="fullName" required />
           </div>
+
           <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input type="email" id="email" name="email" required />
+            <label>Email</label>
+            <input type="email" name="email" required />
           </div>
+
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label>Password</label>
             <input
               type="password"
-              id="password"
               name="password"
-              placeholder="* * * * * * * * * * * *"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="***********"
               required
             />
           </div>
+
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label>Confirm Password</label>
             <input
               type="password"
-              id="confirmPassword"
               name="confirmPassword"
-              placeholder="* * * * * * * * * * * *"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="***********"
               required
             />
           </div>
-          <button type="submit">Register</button>
+
+          <button disabled={loading} type="submit">
+            {loading ? "Registering..." : "Register"}
+          </button>
         </form>
 
         <div className="link">

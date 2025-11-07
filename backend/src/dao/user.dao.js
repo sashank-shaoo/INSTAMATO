@@ -1,72 +1,38 @@
-const { get } = require("mongoose");
 const userModel = require("../models/user.model");
 
 //  Fetch user by email (excluding password)
 async function getUserByEmail(email) {
-  try {
-    const user = await userModel.findOne({ email }).select("-password");
-    if (!user) {
-      throw new Error("User not found with Email");
-    }
-    return user;
-  } catch (error) {
-    throw new Error("Failed to fetch user: " + error.message);
-  }
+  return userModel.findOne({ email }).select("-password");
 }
 
 //  Fetch user by email (including password for authentication)
 async function getUserByEmailWithPassword(email) {
-  try {
-    const user = await userModel.findOne({ email }).select("+password");
-    if (!user) {
-      throw new Error("User not found with Email");
-    }
-    return user;
-  } catch (error) {
-    throw new Error("Failed to fetch user: " + error.message);
-  }
+  return userModel.findOne({ email }).select("+password");
 }
+
 //  Create new user
 async function createUser(data) {
-  try {
-    const user = await userModel.create(data);
-    return user;
-  } catch (error) {
-    throw new Error("Failed to create user: " + error.message);
-  }
+  return userModel.create(data);
 }
 
-// Fetch user by ID  also exclude password
+// Fetch user by ID
 async function getUserById(id) {
-  try {
-    const user = await userModel.findById(id).select("-password");
-    if (!user) {
-      throw new Error("User not found with ID");
-    }
-    return user;
-  } catch (error) {
-    throw new Error("Failed to fetch user by ID: " + error.message);
-  }
+  return userModel.findById(id).select("-password");
 }
 
-//Update User
+// Update user
 async function updateUser(id, data) {
-  try {
-    const user = await userModel.findByIdAndUpdate(
-      id,
-      { $set: data },
-      { new: true, runValidators: true }
-    );
-    return user;
-  } catch (error) {
-    throw new Error("Failed to Update User :" + error.message);
-  }
+  return userModel.findByIdAndUpdate(
+    id,
+    { $set: data },
+    { new: true, runValidators: true }
+  );
 }
-//Verify user
 
 async function getUserByVerificationToken(token) {
   return userModel.findOne({ verificationToken: token });
 }
+
 module.exports = {
   getUserByEmail,
   getUserByEmailWithPassword,

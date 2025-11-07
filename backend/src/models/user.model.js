@@ -5,34 +5,34 @@ const userSchema = new mongoose.Schema(
     fullName: {
       type: String,
       required: true,
+      trim: true,
+      minlength: 2,
     },
+
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
       trim: true,
+      match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
     },
+
     password: {
       type: String,
       required: true,
+      minlength: 6,
     },
+
     isVerified: {
       type: Boolean,
       default: false,
     },
-    verificationToken: {
-      type: String,
-    },
-    verificationTokenExpires: {
-      type: Date,
-    },
+
+    verificationToken: String,
+    verificationTokenExpires: Date,
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-const userModel = mongoose.model("user", userSchema);
-
-module.exports = userModel;
+module.exports = mongoose.model("user", userSchema);

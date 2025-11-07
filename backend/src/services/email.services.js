@@ -1,20 +1,25 @@
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
+});
 
-const sendEmail = async ({ to, subject, html }) => {
+async function sendEmail({ to, subject, html }) {
   try {
-    const data = await resend.emails.send({
-      from: "InstaMato 🍔 <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: `"InstaMato 🍔" <${process.env.MAIL_USER}>`,
       to,
       subject,
       html,
-      text: "Please view this email in an HTML compatible client.",
     });
-    console.log("Email sent:", data);
+    console.log("✅ Email sent:", info.messageId);
   } catch (error) {
-    console.error("Email sending error:", error);
+    console.error("❌ Email sending error:", error);
   }
-};
+}
 
 module.exports = sendEmail;

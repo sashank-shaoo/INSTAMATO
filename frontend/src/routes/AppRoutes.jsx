@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import UserRegister from "../pages/auth/UserRegister";
@@ -12,7 +13,9 @@ import SavedReels from "../pages/general/SavedReels";
 import Profile from "../pages/general/Profile";
 import UpdateUserProfile from "../pages/user/UpdateUserProfile";
 import UpdateFoodProfile from "../pages/food-partner/UpdateFoodProfile";
-
+import VerifyEmail from "../pages/emailVerify/VerifyEmail";
+import VerifiedSuccess from "../pages/emailVerify/VerifiedSuccess";
+import VerifyPending from "../pages/emailVerify/VerifyPending";
 const AppRoutes = () => {
   return (
     <Routes>
@@ -29,6 +32,9 @@ const AppRoutes = () => {
       <Route path="/create-food" element={<CreateFood />} />
       <Route path="/food-partner/:id" element={<FoodPartnerProfile />} />
       <Route path="/food-partner/:id/edit" element={<UpdateFoodProfile />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+  <Route path="/verify-pending" element={<VerifyPending />} />
+  <Route path="/verified-success" element={<VerifiedSuccess />} />
       <Route path="*" element={<div>404 Not Found</div>} />
     </Routes>
   );
