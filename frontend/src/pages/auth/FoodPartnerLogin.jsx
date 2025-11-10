@@ -86,6 +86,7 @@ const FoodPartnerLogin = () => {
       setResendAvailable(false);
     } catch (error) {
       showFlash("Failed to resend verification email", "error");
+      console.log("Resend verification error:", error);
     } finally {
       setResendLoading(false);
     }

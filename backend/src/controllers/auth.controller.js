@@ -19,19 +19,18 @@ async function registerUser(req, res) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const { token, expires } = generateVerificationToken();
-    const hashedToken = await bcrypt.hash(token, 10);
+    const { hashToken, rawToken, expires } = generateVerificationToken(24);
 
     const user = await userDao.createUser({
       fullName,
       email,
       password: hashedPassword,
-      verificationToken: hashedToken,
+      verificationToken: hashToken,
       verificationTokenExpires: expires,
       isVerified: false,
     });
 
-    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${rawToken}`;
 
     await sendEmail({
       to: email,
@@ -163,8 +162,8 @@ async function registerFoodPartner(req, res) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-  
-    const { token, expires } = generateVerificationToken();
+
+    const { hashToken, rawToken, expires } = generateVerificationToken(0.1667);
 
     const partner = await foodPartnerDao.createFoodPartner({
       name,
@@ -173,11 +172,11 @@ async function registerFoodPartner(req, res) {
       address,
       phone,
       contactName,
-      verificationToken: token,
+      verificationToken: hashToken,
       verificationTokenExpires: expires,
       isVerified: false,
     });
-    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${rawToken}`;
 
     await sendEmail({
       to: email,
@@ -324,10 +323,11 @@ async function verifyEmail(req, res) {
     const { token } = req.query;
     if (!token) return res.status(400).send("Missing verification token");
 
-    let account =
-      (await userDao.getUserByVerificationToken(token)) ||
-      (await foodPartnerDao.getFoodPartnerByVerificationToken(token));
+    const tokenHash = generateVerificationToken.createHash(token);
 
+    let account =
+      (await userDao.getUserByVerificationToken(tokenHash)) ||
+      (await foodPartnerDao.getFoodPartnerByVerificationToken(tokenHash));
     if (!account) return res.status(400).send("Invalid or expired token");
 
     if (account.verificationTokenExpires < Date.now()) {
@@ -368,14 +368,13 @@ async function resendVerificationEmail(req, res) {
     }
 
     // Generate fresh token
-    const { token, expires } = generateVerificationToken();
+    const { hashToken, rawToken, expires } = generateVerificationToken();
 
-    account.verificationToken = token;
+    account.verificationToken = hashToken;
     account.verificationTokenExpires = expires;
     await account.save();
 
-    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
-
+    const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${rawToken}`;
     await sendEmail({
       to: email,
       subject: "Resend Verification - InstaMato 🍔",
@@ -398,7 +397,6 @@ async function resendVerificationEmail(req, res) {
     res.status(500).json({ message: "Failed to resend verification email" });
   }
 }
-
 
 module.exports = {
   registerUser,

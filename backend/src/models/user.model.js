@@ -34,5 +34,6 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+userSchema.index({ verificationTokenExpires: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model("user", userSchema);

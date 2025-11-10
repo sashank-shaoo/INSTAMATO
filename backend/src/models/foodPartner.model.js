@@ -53,5 +53,9 @@ const foodPartnerSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+foodPartnerSchema.index(
+  { verificationTokenExpires: 1 },
+  { expireAfterSeconds: 0 }
+);
 
 module.exports = mongoose.model("foodPartner", foodPartnerSchema);
