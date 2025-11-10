@@ -20,12 +20,13 @@ async function registerUser(req, res) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const { token, expires } = generateVerificationToken();
+    const hashedToken = await bcrypt.hash(token, 10);
 
     const user = await userDao.createUser({
       fullName,
       email,
       password: hashedPassword,
-      verificationToken: token,
+      verificationToken: hashedToken,
       verificationTokenExpires: expires,
       isVerified: false,
     });
@@ -36,7 +37,7 @@ async function registerUser(req, res) {
       to: email,
       subject: "Verify your email - InstaMato 🍔",
       html: `
-        <h2>Welcome to InstaMato, ${fullName}!</h2>
+        <h2>Welcome to InstaMato, ${fullName}! as a User</h2>
         <p>Click below to verify your email:</p>
         <a href="${verificationLink}" target="_blank"
            style="background:#00c4ff;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;">
@@ -162,6 +163,7 @@ async function registerFoodPartner(req, res) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+  
     const { token, expires } = generateVerificationToken();
 
     const partner = await foodPartnerDao.createFoodPartner({
@@ -182,6 +184,8 @@ async function registerFoodPartner(req, res) {
       subject: "Verify your email - InstaMato Partner 🍔",
       html: `
         <h2>Welcome ${contactName || name}!</h2>
+        <h2>We appreciate your interest in becoming a food partner.</h2>
+        <p>Please verify your email to complete the registration process:</p>
         <a href="${verificationLink}" target="_blank"
            style="background:#00c4ff;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;">
         Verify Email

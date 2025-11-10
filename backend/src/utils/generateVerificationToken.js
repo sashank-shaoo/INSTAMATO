@@ -1,9 +1,15 @@
 const crypto = require("crypto");
 
-function generateVerificationToken() {
-  const token = crypto.randomBytes(9).toString("hex");
-  const expires = Date.now() + 1000 * 60 * 60 * 24; 
-  return { token, expires };
+function createHash(token) {
+  return crypto.createHash("sha256").update(token).digest("hex");
 }
 
-module.exports = generateVerificationToken;
+function generateVerificationToken(expariesInHours = 24) {
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const hashToken = createHash(rawToken);
+  const expires = Date.now() + 1000 * 60 * 60 * expariesInHours; // Default 24 hours
+  return { rawToken, hashToken, expires };
+}
+
+
+module.exports = { generateVerificationToken , createHash };
