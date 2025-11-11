@@ -49,9 +49,7 @@ const FoodPartnerLogin = () => {
         );
       }
 
-      // ✅ Set role
       localStorage.setItem("role", "foodPartner");
-
       showFlash("Logged in successfully as Food Partner!", "success");
       navigate("/profile");
     } catch (error) {
@@ -59,7 +57,7 @@ const FoodPartnerLogin = () => {
 
       const msg = error.response?.data?.message;
 
-      // ✅ If backend returns "Email not verified"
+      // If backend returns "Email not verified" for this handle it 
       if (error.response?.status === 403 && msg === "Email not verified") {
         showFlash("Your email is not verified. Please verify first.", "error");
         setResendAvailable(true);

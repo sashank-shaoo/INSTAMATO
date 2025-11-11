@@ -4,14 +4,14 @@ const userSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
-      required: true,
+      required: [true, "Full name is required"],
       trim: true,
-      minlength: 2,
+      minlength: [2,"full name must be at least 2 characters long"],
     },
 
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
@@ -20,8 +20,8 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
-      minlength: 6,
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters long"],
     },
 
     isVerified: {
@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
 
     verificationToken: String,
     verificationTokenExpires: Date,
+    verificationLastSent: Number,
   },
   { timestamps: true }
 );

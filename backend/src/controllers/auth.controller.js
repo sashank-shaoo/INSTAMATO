@@ -13,19 +13,23 @@ async function registerUser(req, res) {
   try {
     const { fullName, email, password } = req.body;
 
+    // Check if email exists
     const existing = await userDao.getUserByEmail(email);
     if (existing) {
-      return res.status(400).json({ message: "Email already in use" });
+      return res.status(400).json({
+        type: "error",
+        message: "Email already in use",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const { hashToken, rawToken, expires } = generateVerificationToken(24);
+    const { rawToken, tokenHash, expires } = generateVerificationToken(24);
 
     const user = await userDao.createUser({
       fullName,
       email,
       password: hashedPassword,
-      verificationToken: hashToken,
+      verificationToken: tokenHash,
       verificationTokenExpires: expires,
       isVerified: false,
     });
@@ -47,12 +51,35 @@ async function registerUser(req, res) {
     });
 
     return res.status(201).json({
+      type: "success",
       message:
         "User registered successfully. Please check your email to verify your account.",
     });
   } catch (error) {
     console.error("Error registering user:", error);
-    res.status(500).json({ message: "Failed to register user" });
+
+    // ✅ HANDLE: Duplicate unique key error
+    if (error.code === 11000) {
+      return res.status(400).json({
+        type: "error",
+        message: "Email is already in use",
+      });
+    }
+
+    // ✅ HANDLE: Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const firstMessage = Object.values(error.errors)[0].message;
+      return res.status(400).json({
+        type: "error",
+        message: firstMessage, // e.g. "Password must be at least 6 characters"
+      });
+    }
+
+    // ✅ fallback
+    return res.status(500).json({
+      type: "error",
+      message: "Failed to register user",
+    });
   }
 }
 
@@ -65,11 +92,12 @@ async function updateUser(req, res) {
     if (!userId) {
       return res
         .status(401)
-        .json({ message: "Unauthorized access : Login first" });
+        .json({ type: "error", message: "Unauthorized access : Login first" });
     }
 
     if (data.email || data.password) {
       return res.status(400).json({
+        type: "error",
         message: "Email and Password can't be changed here",
       });
     }
@@ -77,11 +105,13 @@ async function updateUser(req, res) {
 
     if (!updateUser) {
       return res.status(404).json({
+        type: "error",
         message: "User not Found",
       });
     }
 
     res.status(200).json({
+      type: "success",
       message: "User updated successfully",
       user: updateUser,
     });
@@ -89,7 +119,11 @@ async function updateUser(req, res) {
     console.error("Error updating user:", error);
     res
       .status(500)
-      .json({ message: "Failed to update user", error: error.message });
+      .json({
+        type: "error",
+        message: "Failed to update user",
+        error: error.message,
+      });
   }
 }
 
@@ -158,7 +192,9 @@ async function registerFoodPartner(req, res) {
 
     const existing = await foodPartnerDao.getFoodPartnerByEmail(email);
     if (existing) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res
+        .status(400)
+        .json({ type: "error", message: "Email already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -193,11 +229,33 @@ async function registerFoodPartner(req, res) {
     });
 
     return res.status(201).json({
+      type: "success",
       message: "FoodPartner registered successfully. Please verify your email.",
     });
   } catch (error) {
     console.error("Error registering partner:", error);
-    res.status(500).json({ message: "Failed to register partner" });
+    // ✅ Duplicate key error
+    if (error.code === 11000) {
+      return res.status(400).json({
+        type: "error",
+        message: "Email already exists",
+      });
+    }
+
+    // ✅ Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const firstMessage = Object.values(error.errors)[0].message;
+      return res.status(400).json({
+        type: "error",
+        message: firstMessage,
+      });
+    }
+
+    // ✅ fallback
+    return res.status(500).json({
+      type: "error",
+      message: "Failed to register partner",
+    });
   }
 }
 
@@ -269,7 +327,7 @@ async function updateFoodPartner(req, res) {
     if (data.email || data.password) {
       return res
         .status(400)
-        .json({ message: "Email or Password can't be changed here ." });
+        .json({ type: "warning", message: "Email or Password can't be changed here ." });
     }
 
     const updatePartner = await foodPartnerDao.updateFoodPartnerById(
@@ -278,15 +336,28 @@ async function updateFoodPartner(req, res) {
     );
 
     if (!updatePartner) {
-      return res.status(404).json({ message: "Food partner not found." });
+      return res
+        .status(404)
+        .json({ type: "error", message: "Food partner not found." });
     }
     res.status(200).json({
+      type: "success",
       message: "FoodPartner Updated succefully",
       updatePartner,
     });
   } catch (error) {
     console.error("Error updating in food partner : ", error);
-    res.status(500).json({ message: error.message });
+     if (error.name === "ValidationError") {
+       return res.status(400).json({
+         type: "error",
+         message: Object.values(error.errors)[0].message,
+       });
+     }
+
+     return res.status(500).json({
+       type: "error",
+       message: "Failed to update food partner",
+     });
   }
 }
 
@@ -313,6 +384,7 @@ async function getCurrentUser(req, res) {
   } catch (error) {
     console.error("Error fetching current user:", error);
     res.status(500).json({
+      type: "error",
       message: "Failed to fetch current user",
       error: error.message,
     });
@@ -351,7 +423,7 @@ async function resendVerificationEmail(req, res) {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ message: "Email is required" });
+      return res.status(400).json({ type: "warning", message: "Email is required" });
     }
 
     // Check for User or Partner
@@ -360,11 +432,21 @@ async function resendVerificationEmail(req, res) {
       (await foodPartnerDao.getFoodPartnerByEmail(email));
 
     if (!account) {
-      return res.status(404).json({ message: "Account not found" });
+      return res.status(404).json({ type: "error", message: "Account not found" });
     }
 
     if (account.isVerified) {
-      return res.status(400).json({ message: "Email already verified" });
+      return res.status(400).json({ type: "warning", message: "Email already verified" });
+    }
+    const now = Date.now();
+
+    if (
+      account.verificationLastSent &&
+      now - account.verificationLastSent < 2 * 60 * 1000
+    ) {
+      return res.status(429).json({
+        message: "Please wait 2 minutes before requesting again",
+      });
     }
 
     // Generate fresh token
@@ -388,13 +470,16 @@ async function resendVerificationEmail(req, res) {
         <p>This link expires in 24 hours.</p>
       `,
     });
+    account.verificationLastSent = Date.now();
+    await account.save();
 
     return res.status(200).json({
+      type: "success",
       message: "New verification email sent",
     });
   } catch (error) {
     console.error("Resend verification email error:", error);
-    res.status(500).json({ message: "Failed to resend verification email" });
+    res.status(500).json({ type: "error", message: "Failed to resend verification email" });
   }
 }
 

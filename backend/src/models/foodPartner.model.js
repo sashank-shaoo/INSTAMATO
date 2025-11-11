@@ -4,13 +4,14 @@ const foodPartnerSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Name is required"],
       trim: true,
+      minlength: [4, "Name must be at least 4 characters long"],
     },
 
     contactName: {
       type: String,
-      required: true,
+      required: [true, "Contact name is required"],
       trim: true,
     },
 
@@ -30,7 +31,7 @@ const foodPartnerSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
@@ -39,8 +40,8 @@ const foodPartnerSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
-      minlength: 6,
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters long"],
     },
 
     isVerified: {
@@ -50,6 +51,7 @@ const foodPartnerSchema = new mongoose.Schema(
 
     verificationToken: String,
     verificationTokenExpires: Date,
+    verificationLastSent: Number,
   },
   { timestamps: true }
 );
