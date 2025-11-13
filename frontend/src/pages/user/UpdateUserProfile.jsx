@@ -39,10 +39,10 @@ const UpdateUserProfile = () => {
     try {
       const { email: _email, password: _password, ...updatableData } = user;
       await axios.put("/user/profile/edit", updatableData);
-      showFlash("✅ Profile updated successfully!", "success");
+      showFlash("Profile updated successfully!", "success");
       setTimeout(() => navigate("/profile"), 1500);
     } catch {
-      showFlash("Update failed. Try again.", "error");
+      return;
     } finally {
       setLoading(false);
     }

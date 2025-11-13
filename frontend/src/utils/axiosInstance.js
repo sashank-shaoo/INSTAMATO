@@ -10,10 +10,11 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-    const message = error.response?.data?.message;
+    const data = error.response?.data;
+    const message = data?.message;
+    const type = data?.type || "error"; // ✅ use backend type or default to "error"
     const requestUrl = error.config?.url;
 
-    // ✅ Do NOT redirect on login/register/resend requests
     const isAuthRoute =
       requestUrl.includes("/login") ||
       requestUrl.includes("/register") ||
@@ -22,11 +23,15 @@ axiosInstance.interceptors.response.use(
     if (status === 401 && !isAuthRoute) {
       showFlashGlobal("Session expired. Please log in again.", "error");
 
-      // ✅ Redirect only for protected route session expiration
       setTimeout(() => (window.location.href = "/user/login"), 1500);
-    } else if (message) {
-      showFlashGlobal(message, "error");
-    } else {
+    }
+
+    //show backend message if available
+    else if (message) {
+      showFlashGlobal(message, type);
+    }
+    // Generic error message for other cases
+    else {
       showFlashGlobal("Something went wrong.", "error");
     }
 

@@ -2,7 +2,7 @@ const foodPartnerDao = require("../dao/foodPartner.dao");
 const userDao = require("../dao/user.dao");
 const bcrypt = require("bcryptjs");
 const sendEmail = require("../services/email.services");
-const generateVerificationToken = require("../utils/generateVerificationToken");
+const {generateVerificationToken} = require("../utils/generateVerificationToken");
 const jwt = require("jsonwebtoken");
 
 // -------------------USER AUTH CONTROLLERS-------------------//
@@ -19,6 +19,12 @@ async function registerUser(req, res) {
       return res.status(400).json({
         type: "error",
         message: "Email already in use",
+      });
+    }
+    if (!email || typeof email !== "string") {
+      return res.status(400).json({
+        type: "error",
+        message: "Valid email is required",
       });
     }
 
@@ -117,13 +123,17 @@ async function updateUser(req, res) {
     });
   } catch (error) {
     console.error("Error updating user:", error);
-    res
-      .status(500)
-      .json({
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
         type: "error",
-        message: "Failed to update user",
-        error: error.message,
+        message: Object.values(error.errors)[0].message,
       });
+    }
+    res.status(500).json({
+      type: "error",
+      message: "Failed to update user",
+      error: error.message,
+    });
   }
 }
 
@@ -135,15 +145,21 @@ async function loginUser(req, res) {
 
     const user = await userDao.getUserByEmailWithPassword(email);
     if (!user)
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res
+        .status(400)
+        .json({ type: "error", message: "Invalid email or password" });
 
     if (!user.isVerified) {
-      return res.status(403).json({ message: "Email not verified" });
+      return res
+        .status(403)
+        .json({ type: "success", message: "Email not verified" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res
+        .status(400)
+        .json({ type: "error", message: "Invalid email or password" });
     }
 
     const token = jwt.sign(
@@ -160,6 +176,7 @@ async function loginUser(req, res) {
     });
 
     return res.status(200).json({
+      type: "success",
       message: "User login successfully",
       user: {
         _id: user._id,
@@ -169,7 +186,7 @@ async function loginUser(req, res) {
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ type: "error", message: "Internal server error" });
   }
 }
 
@@ -178,6 +195,7 @@ async function loginUser(req, res) {
 async function logoutUser(req, res) {
   res.clearCookie("token");
   res.status(200).json({
+    type: "success",
     message: "User logout successfully",
   });
 }
@@ -269,15 +287,21 @@ async function loginFoodPartner(req, res) {
       email
     );
     if (!partner)
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res
+        .status(401)
+        .json({ type: "error", message: "Invalid email or password" });
 
     if (!partner.isVerified) {
-      return res.status(403).json({ message: "Email not verified" });
+      return res
+        .status(403)
+        .json({ type: "warning", message: "Email not verified" });
     }
 
     const valid = await bcrypt.compare(password, partner.password);
     if (!valid)
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res
+        .status(401)
+        .json({ type: "error", message: "Invalid email or password" });
 
     const token = jwt.sign(
       { id: partner._id, role: "partner" },
@@ -293,6 +317,7 @@ async function loginFoodPartner(req, res) {
     });
 
     return res.status(200).json({
+      type: "success",
       message: "FoodPartner login successful",
       foodPartner: {
         _id: partner._id,
@@ -302,7 +327,7 @@ async function loginFoodPartner(req, res) {
     });
   } catch (error) {
     console.error("FoodPartner login error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ type: "error", message: "Internal server error" });
   }
 }
 
@@ -310,6 +335,7 @@ async function loginFoodPartner(req, res) {
 async function logoutFoodPartner(req, res) {
   res.clearCookie("token");
   res.status(200).json({
+    type: "success",
     message: "FoodPartner logout successfully",
   });
 }
@@ -321,13 +347,16 @@ async function updateFoodPartner(req, res) {
     const data = req.body;
 
     if (!partnerId) {
-      return res.status(401).json({ message: "Unauthorized access." });
-    }
-    //i prevent email for better managment
-    if (data.email || data.password) {
       return res
-        .status(400)
-        .json({ type: "warning", message: "Email or Password can't be changed here ." });
+        .status(401)
+        .json({ type: "error", message: "Unauthorized access." });
+    }
+    // prevent email for better managment and password change. it should be done via separate route
+    if (data.email || data.password) {
+      return res.status(400).json({
+        type: "warning",
+        message: "Email or Password can't be changed here .",
+      });
     }
 
     const updatePartner = await foodPartnerDao.updateFoodPartnerById(
@@ -347,17 +376,17 @@ async function updateFoodPartner(req, res) {
     });
   } catch (error) {
     console.error("Error updating in food partner : ", error);
-     if (error.name === "ValidationError") {
-       return res.status(400).json({
-         type: "error",
-         message: Object.values(error.errors)[0].message,
-       });
-     }
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        type: "error",
+        message: Object.values(error.errors)[0].message,
+      });
+    }
 
-     return res.status(500).json({
-       type: "error",
-       message: "Failed to update food partner",
-     });
+    return res.status(500).json({
+      type: "error",
+      message: "Failed to update food partner",
+    });
   }
 }
 
@@ -390,6 +419,8 @@ async function getCurrentUser(req, res) {
     });
   }
 }
+
+//_____________Verify Email____________//
 async function verifyEmail(req, res) {
   try {
     const { token } = req.query;
@@ -418,68 +449,86 @@ async function verifyEmail(req, res) {
     res.status(500).send("Verification failed");
   }
 }
+
+//_____________Resend Verification Email____________//
 async function resendVerificationEmail(req, res) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res
+      .status(400)
+      .json({ type: "warning", message: "Email is required" });
+  }
+
   try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ type: "warning", message: "Email is required" });
-    }
-
-    // Check for User or Partner
-    let account =
+    const account =
       (await userDao.getUserByEmail(email)) ||
       (await foodPartnerDao.getFoodPartnerByEmail(email));
 
     if (!account) {
-      return res.status(404).json({ type: "error", message: "Account not found" });
+      return res
+        .status(404)
+        .json({ type: "error", message: "Account not found" });
     }
 
     if (account.isVerified) {
-      return res.status(400).json({ type: "warning", message: "Email already verified" });
+      return res
+        .status(400)
+        .json({ type: "warning", message: "Email already verified" });
     }
-    const now = Date.now();
 
+    const now = Date.now();
     if (
       account.verificationLastSent &&
       now - account.verificationLastSent < 2 * 60 * 1000
     ) {
       return res.status(429).json({
+        type: "warning",
         message: "Please wait 2 minutes before requesting again",
       });
     }
 
-    // Generate fresh token
     const { hashToken, rawToken, expires } = generateVerificationToken();
-
     account.verificationToken = hashToken;
     account.verificationTokenExpires = expires;
     await account.save();
 
     const verificationLink = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${rawToken}`;
-    await sendEmail({
-      to: email,
-      subject: "Resend Verification - InstaMato 🍔",
-      html: `
-        <h2>Verify your email</h2>
-        <p>You requested a new verification link:</p>
-        <a href="${verificationLink}" target="_blank"
-           style="background:#00c4ff;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;">
-           Verify Email
-        </a>
-        <p>This link expires in 24 hours.</p>
-      `,
-    });
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Resend Verification - InstaMato 🍔",
+        html: `
+          <h2>Verify your email</h2>
+          <p>You requested a new verification link:</p>
+          <a href="${verificationLink}" target="_blank"
+             style="background:#00c4ff;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;">
+             Verify Email
+          </a>
+          <p>This link expires in 24 hours.</p>
+        `,
+      });
+    } catch (err) {
+      console.error("Email sending failed:", err.message);
+      return res
+        .status(500)
+        .json({ type: "error", message: "Failed to send verification email" });
+    }
+
     account.verificationLastSent = Date.now();
     await account.save();
-
+    
     return res.status(200).json({
       type: "success",
       message: "New verification email sent",
     });
   } catch (error) {
-    console.error("Resend verification email error:", error);
-    res.status(500).json({ type: "error", message: "Failed to resend verification email" });
+    console.error("Resend verification email error:", error.message);
+    return res.status(500).json({
+      type: "error",
+      message: "Internal server error, please try again later",
+    });
   }
 }
 

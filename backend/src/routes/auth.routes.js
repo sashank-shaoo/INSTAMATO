@@ -1,7 +1,7 @@
 const express = require("express");
 const authController = require("../controllers/auth.controller");
 const authMiddlewares = require("../middlewares/auth.middlewares");
-const rateLimitMiddlewares = require("../middlewares/rateLimit.middlewares");
+const {resendLimiter} = require("../middlewares/resendLimiter.middlewares");
 
 const router = express.Router();
 
@@ -18,12 +18,11 @@ router.get("/food-partner/logout", authController.logoutFoodPartner);
 // Email verification route
 router.get(
   "/verify-email",
-  rateLimitMiddlewares.verifyEmailLimiter,
   authController.verifyEmail
 );
 router.post(
   "/resend-verification",
-  rateLimitMiddlewares.sendEmailLimiter,
+  resendLimiter,
   authController.resendVerificationEmail
 );
 

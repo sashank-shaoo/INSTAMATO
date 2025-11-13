@@ -1,7 +1,6 @@
 .flash-message {
   position: fixed;
   width: 95%;
-  max-width: 300px;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
