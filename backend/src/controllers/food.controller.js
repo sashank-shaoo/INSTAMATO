@@ -8,15 +8,13 @@ const { v4: uuid } = require("uuid");
 
 //__________CREATE FOOD ITEM__________//
 async function createFoodItem(req, res) {
+  if(!req.file){
+    return  res.status(400).json({
+      type: "error",
+      message: "Video file is required",
+    });
+  }
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: "Video file is required" });
-    }
-    if (!req.body.name) {
-      return res.status(400).json({ message: "Food name is required" });
-    }
-    console.log(req.file);
-
     const uploadResult = await storageService.uploadVideo(
       req.file.buffer,
       `${uuid()}.mp4`
@@ -38,7 +36,16 @@ async function createFoodItem(req, res) {
     });
   } catch (error) {
     console.error("Error creating food item:", error);
-    res.status(500).json({
+
+    // ✅ Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const firstMessage = Object.values(error.errors)[0].message;
+      return res.status(400).json({
+        type: "error",
+        message: firstMessage,
+      });
+    }
+    return res.status(500).json({
       success: false,
       message: "Failed to create food item",
       error: error.message,

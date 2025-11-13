@@ -1,4 +1,4 @@
-const ImageKit = require("@imagekit/nodejs").default; // ✅ correct import
+const ImageKit = require("@imagekit/nodejs").default; 
 const fs = require("fs");
 const path = require("path");
 const { v4: uuid } = require("uuid");

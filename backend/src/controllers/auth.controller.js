@@ -77,7 +77,7 @@ async function registerUser(req, res) {
       const firstMessage = Object.values(error.errors)[0].message;
       return res.status(400).json({
         type: "error",
-        message: firstMessage, // e.g. "Password must be at least 6 characters"
+        message: firstMessage, 
       });
     }
 

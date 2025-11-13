@@ -2,6 +2,9 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const hpp = require("hpp");
+const xssSanitize = require("./middlewares/xssSanitize.middlewares");
 
 const authRoutes = require("./routes/auth.routes");
 const foodRoutes = require("./routes/food.routes");
@@ -10,14 +13,17 @@ const userRoutes = require("./routes/user.routes");
 
 const app = express();
 
-//Helmet security middleware for setting various HTTP headers
+// --------------------- SECURITY MIDDLEWARES ---------------------
+
+// 1) Helmet
 app.use(
   helmet({
-    contentSecurityPolicy: false, // disable if using inline styles/scripts
+    contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
   })
 );
 
+// 2) CORS (must come BEFORE sanitization)
 const allowedOrigins = [
   "http://localhost:5173",
   "https://instamato.vercel.app",
@@ -25,24 +31,37 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: function (origin, callback) {
+    origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS policy violation: Origin not allowed"));
+        return callback(null, true);
       }
+      return callback(new Error("CORS policy violation: Origin not allowed"));
     },
-    credentials: true, // allow cookies (JWT)
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-app.use(cookieParser());
+// 3) Body parsing (must come BEFORE sanitize)
 app.use(express.json());
-app.set("trust proxy", 1); // trust first proxy if behind a reverse proxy (e.g., Heroku, Nginx)
 
-// Health check route
+// 4) Cookie parser
+app.use(cookieParser());
+
+// 5) Prevent MongoDB operator injection
+app.use(mongoSanitize({ replaceWith: "_" }));
+
+// 6) Sanitize user input (XSS protection)
+app.use(xssSanitize);
+
+// 7) Prevent HTTP Parameter Pollution
+app.use(hpp());
+
+// ---------------------------------------------------------------
+
+app.set("trust proxy", 1);
+
 app.get("/", (req, res) => {
   res.send("InstaMato backend is running securely 🔒");
 });
