@@ -29,13 +29,13 @@ async function registerUser(req, res) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const { rawToken, tokenHash, expires } = generateVerificationToken(24);
+    const { rawToken, hashToken, expires } = generateVerificationToken(24);
 
     const user = await userDao.createUser({
       fullName,
       email,
       password: hashedPassword,
-      verificationToken: tokenHash,
+      verificationToken: hashToken,
       verificationTokenExpires: expires,
       isVerified: false,
     });

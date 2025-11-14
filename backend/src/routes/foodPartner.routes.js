@@ -3,6 +3,8 @@ const router = express.Router();
 const foodPartnerController = require("../controllers/food-partner.controller");
 const authController = require("../controllers/auth.controller");
 const authMiddlewares = require("../middlewares/auth.middlewares");
+const validate = require("../middlewares/validate.middlewares");
+const { foodPartnerUpdateSchema } = require("../validation/all.validation");
 
 router.get("/", foodPartnerController.getAllFoodPartner);
 //api/food-partner/:id - get food partner profile [Protected route - food partner/user]
@@ -16,6 +18,7 @@ router.get(
 router.put(
   "/:id/edit",
   authMiddlewares.authenticateFoodPartner,
+  validate(foodPartnerUpdateSchema),
   authController.updateFoodPartner
 );
 
