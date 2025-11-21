@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "../../utils/axiosInstance";
 import "../../styles/general/home1.css"; // Keep your stylesheet
 import { useFlash } from "../../context/FlashContext";
+import { Link } from "react-router-dom";
 
 const Home1 = () => {
   const [foodItems, setFoodItems] = useState([]);
-  const {showFlash} = useFlash();
+  const { showFlash } = useFlash();
 
   useEffect(() => {
     const fetchFood = async () => {
@@ -36,9 +37,7 @@ const Home1 = () => {
       <div className="home1-wrapper">
         <div className="top-title">
           <h2 className="home1-title">INSTAMATO</h2>
-          <div className="filter-section">
-            
-          </div>
+          <div className="filter-section"></div>
         </div>
         <div className="food-list-section">
           {foodItems.length === 0 ? (
@@ -55,9 +54,9 @@ const Home1 = () => {
                   <span className="food-name">{food.name}</span>
                   <span className="food-price">${food.price}</span>
                 </div>
-                <a href="#" className="add-cart-btn">
-                  add cart
-                </a>
+                <Link to={`/${food.id}`} className="add-cart-btn">
+                  View
+                </Link>
               </div>
             ))
           )}

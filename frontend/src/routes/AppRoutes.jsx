@@ -16,6 +16,7 @@ import UpdateFoodProfile from "../pages/food-partner/UpdateFoodProfile";
 import VerifyEmail from "../pages/emailVerify/VerifyEmail";
 import VerifiedSuccess from "../pages/emailVerify/VerifiedSuccess";
 import VerifyPending from "../pages/emailVerify/VerifyPending";
+import FoodItem from "../pages/general/FoodItem";
 const AppRoutes = () => {
   return (
     <Routes>
@@ -24,6 +25,7 @@ const AppRoutes = () => {
       <Route path="/food-partner/register" element={<FoodPartnerRegister />} />
       <Route path="/food-partner/login" element={<FoodPartnerLogin />} />
       <Route path="/" element={<Home1 />} />
+      <Route path="/:id" element={<FoodItem />} />
       <Route path="/reels" element={<Home2 />} />
 
       <Route path="/profile" element={<Profile />} />

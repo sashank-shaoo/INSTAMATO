@@ -32,4 +32,12 @@ async function getFoodItemsByPartner(id) {
   }
 }
 
-module.exports = { createFoodItem, getAllFoodItems, getFoodItemsByPartner };
+async function getFoodItemById(id) {
+  try {
+    const foodItem = await foodModel.findById(id).lean();
+    return foodItem;
+  } catch (error) {
+    throw new Error("Failed to fetch food item : " + error.message);
+  }
+}
+module.exports = { createFoodItem, getAllFoodItems, getFoodItemsByPartner, getFoodItemById };

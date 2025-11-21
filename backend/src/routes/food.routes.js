@@ -27,6 +27,11 @@ router.get(
   authMiddlewares.authenticateUser,
   foodController.getAllFoodItems
 );
+//GET /api/food/:id - get food according to their id
+router.get("/:id",
+  authMiddlewares.authenticateUser,
+  foodController.getFoodItemById
+);
 
 // POST /api/food/like - like a food item [protected route - user]
 router.post(

@@ -106,7 +106,34 @@ async function getAllFoodItems(req, res) {
   }
 }
 
+async function getFoodItemById (req, res){
+  try{
+    const {id} = req.params;
+
+    const getFoodItem =await foodDao.getFoodItemById(id);
+
+    if(!getFoodItem){
+      return res.status(404).json({
+        type: "error",
+        message: "Failed to Fetch the FoodItem"
+      })
+    }
+    return res.status(200).json({
+      type : "success",
+      message: "FoodItem Fetched Successfully",
+      foodItem : getFoodItem,
+    })
+  }catch(error){
+      return res.status(500).json({
+        type : "error",
+        message: "Internal Server Error",
+        error: error.message,
+      })
+  }
+}
+
 module.exports = {
   createFoodItem,
   getAllFoodItems,
+  getFoodItemById
 };
