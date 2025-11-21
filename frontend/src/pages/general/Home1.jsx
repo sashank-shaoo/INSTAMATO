@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../utils/axiosInstance";
-import "../../styles/general/home1.css"; // Keep your stylesheet
+import "../../styles/general/home1.css";
 import { useFlash } from "../../context/FlashContext";
 import { Link } from "react-router-dom";
 
@@ -30,7 +30,7 @@ const Home1 = () => {
       }
     };
     fetchFood();
-  }, []);
+  }, [showFlash]);
 
   return (
     <div className="home1-container">
