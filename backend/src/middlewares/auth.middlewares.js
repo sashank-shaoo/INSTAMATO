@@ -7,6 +7,7 @@ async function authenticateFoodPartner(req, res, next) {
 
   if (!token) {
     return res.status(401).json({
+      type:"error",
       message: "Unauthorized access :: login first",
     });
   }
@@ -30,6 +31,7 @@ async function authenticateUser(req, res, next) {
 
   if (!token) {
     return res.status(401).json({
+      type:"error",
       message: "Unauthorized access :: login first",
     });
   } 
@@ -51,6 +53,7 @@ async function authenticateAny(req, res, next) {
 
   if (!token) {
     return res.status(401).json({
+      type:"error",
       message: "Unauthorized access :: login first",
     });
   }
@@ -60,7 +63,7 @@ async function authenticateAny(req, res, next) {
 
     if (decoded.role === "user") {
       const user = await userModel.findById(decoded.id).select("-password");
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) return res.status(404).json({ type: "error", message: "User not found" });
 
       req.user = user;
       req.role = "user";
@@ -69,17 +72,18 @@ async function authenticateAny(req, res, next) {
         .findById(decoded.id)
         .select("-password");
       if (!foodPartner)
-        return res.status(404).json({ message: "Food partner not found" });
+        return res.status(404).json({ type: "error", message: "Food partner not found" });
 
       req.foodPartner = foodPartner;
       req.role = "partner";
     } else {
-      return res.status(400).json({ message: "Invalid role in token" });
+      return res.status(400).json({ type: "error", message: "Invalid role in token" });
     }
 
     next();
   } catch (err) {
     return res.status(401).json({
+      type: "error",
       message: "Invalid Token :: Unauthorized access",
     });
   }

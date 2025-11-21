@@ -50,19 +50,21 @@ const FoodPartnerLogin = () => {
       }
 
       localStorage.setItem("role", "foodPartner");
-      showFlash("Logged in successfully as Food Partner!", "success");
+      const msg = response.data.message || "Login successful";
+      const type = response.data.type || "success";
+      showFlash(msg, type);
       navigate("/profile");
     } catch (error) {
       console.error("Food Partner login error:", error);
 
       const msg = error.response?.data?.message;
-
+      const type = error.response?.data?.type || "error";
       // If backend returns "Email not verified" for this handle it 
       if (error.response?.status === 403 && msg === "Email not verified") {
-        showFlash("Your email is not verified. Please verify first.", "error");
+        showFlash("Your email is not verified. Please verify first.", "warning");
         setResendAvailable(true);
       } else {
-        showFlash("Invalid email or password", "error");
+        showFlash(msg || "Login failed", type);
       }
     } finally {
       setLoading(false);
@@ -105,7 +107,6 @@ const FoodPartnerLogin = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              required
             />
           </div>
 
@@ -116,7 +117,6 @@ const FoodPartnerLogin = () => {
               name="password"
               placeholder="* * * * * * * * * * * *"
               autoComplete="current-password"
-              required
             />
           </div>
 

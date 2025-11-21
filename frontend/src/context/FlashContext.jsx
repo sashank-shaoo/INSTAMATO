@@ -12,7 +12,7 @@ const FlashContext = createContext();
 export const FlashProvider = ({ children }) => {
   const [flash, setFlash] = useState(null);
 
-  const showFlash = useCallback((message, type = "info", duration = 3000) => {
+  const showFlash = useCallback((message, type = "info", duration = 5000) => {
     setFlash({ message, type });
     setTimeout(() => setFlash(null), duration);
   }, []);
@@ -20,6 +20,7 @@ export const FlashProvider = ({ children }) => {
   useEffect(() => {
     const handler = (e) => {
       const { message, type, duration } = e.detail;
+
       setFlash({ message, type });
       setTimeout(() => setFlash(null), duration);
     };
@@ -29,10 +30,12 @@ export const FlashProvider = ({ children }) => {
   }, []);
 
   return (
-    <FlashContext.Provider value={{ showFlash }}>
+    <FlashContext.Provider value={{ flash, showFlash }}>
       {children}
       {flash && (
-        <div className={`flash-message ${flash.type}`}>{flash.message}</div>
+        <div className={`flashMessage ${flash.type}`}>
+          {flash.message}
+        </div>
       )}
     </FlashContext.Provider>
   );

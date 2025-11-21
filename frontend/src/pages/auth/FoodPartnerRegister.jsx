@@ -30,7 +30,7 @@ const FoodPartnerRegister = () => {
     try {
       setLoading(true);
 
-      await axios.post("/auth/food-partner/register", {
+     const response = await axios.post("/auth/food-partner/register", {
         name,
         contactName,
         phone,
@@ -39,14 +39,15 @@ const FoodPartnerRegister = () => {
         password,
       });
 
-      showFlash(
-        "Registration successful! Check your email to verify before login.",
-        "success"
-      );
-
-      navigate("/verify-pending"); // ✅ same UX page
-    } catch {
-      showFlash("Registration failed. Try again.", "error");
+      const msg = response.data.message || "Registration successful! Please verify your email.";
+      const type = response.data.type || "success";
+      showFlash(msg, type);
+      navigate("/verify-pending");
+    } catch (error) {
+      const msg =
+        error.response?.data?.message || "Registration failed. Try again.";
+      const type = error.response?.data?.type || "error";
+      showFlash(msg, type);
     } finally {
       setLoading(false);
     }
@@ -60,27 +61,27 @@ const FoodPartnerRegister = () => {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Business Name</label>
-            <input type="text" name="name" required />
+            <input type="text" name="name" />
           </div>
 
           <div className="form-group">
             <label>Contact Name</label>
-            <input type="text" name="contactName" required />
+            <input type="text" name="contactName" />
           </div>
 
           <div className="form-group">
             <label>Phone Number</label>
-            <input type="number" name="phone" required />
+            <input type="number" name="phone" />
           </div>
 
           <div className="form-group">
             <label>Address</label>
-            <input type="text" name="address" required />
+            <input type="text" name="address" />
           </div>
 
           <div className="form-group">
             <label>Email</label>
-            <input type="email" name="email" required />
+            <input type="email" name="email" />
           </div>
 
           <div className="form-group">
@@ -91,7 +92,6 @@ const FoodPartnerRegister = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="***********"
-              required
             />
           </div>
 
@@ -103,7 +103,6 @@ const FoodPartnerRegister = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="***********"
-              required
             />
           </div>
 

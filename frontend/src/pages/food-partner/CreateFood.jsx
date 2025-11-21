@@ -8,17 +8,28 @@ const CreateFood = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     video: null,
+    image: null,
     name: "",
+    price: "",
     description: "",
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const imageInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const { showFlash } = useFlash();
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setSelectedImage(file);
+      setFormData({ ...formData, image: file });
+    }
   };
 
   const handleFileSelect = (file) => {
@@ -71,13 +82,18 @@ const CreateFood = () => {
       data.append("video", formData.video);
       data.append("name", formData.name);
       data.append("description", formData.description);
+      data.append("image", formData.image);
+      data.append("price", formData.price);
       await axios.post("/food", data);
       showFlash("Food item created successfully!", "success");
       navigate("/");
-    } catch(error) {
-      if(error.response.status === 401) {
-        showFlash("Please login as a food partner", "error");
-      }else{
+    } catch (error) {
+      if (error.response.status === 401) {
+        const message =
+          error.response?.data?.message || "Please login as a food partner";
+        const type = error.response?.data?.type || "error";
+        showFlash(message, type);
+      } else {
         showFlash("Error on Creating food item", "error");
       }
     }
@@ -216,6 +232,47 @@ const CreateFood = () => {
               </div>
             )}
           </div>
+          <div className="form-group">
+            <label>Food Image:</label>
+
+            {selectedImage ? (
+              <div className="file-preview">
+                <img
+                  src={URL.createObjectURL(selectedImage)}
+                  alt="preview"
+                  className="preview-image"
+                />
+
+                <div className="preview-buttons">
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => {
+                      setSelectedImage(null);
+                      setFormData({ ...formData, image: null });
+                    }}>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="file-drop-zone"
+                onClick={() => imageInputRef.current.click()}>
+                <div className="drop-zone-content">
+                  <p>Click to upload food image</p>
+                </div>
+
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ display: "none" }}
+                />
+              </div>
+            )}
+          </div>
 
           <div className="form-group">
             <label htmlFor="name">Name:</label>
@@ -229,7 +286,18 @@ const CreateFood = () => {
               required
             />
           </div>
-
+          <div className="form-group">
+            <label htmlFor="price">Price:</label>
+            <input
+              type="number"
+              id="price"
+              name="price"
+              value={formData.price}
+              onChange={handleInputChange}
+              placeholder="Enter price"
+              required
+            />
+          </div>
           <div className="form-group">
             <label htmlFor="description">Description:</label>
             <textarea

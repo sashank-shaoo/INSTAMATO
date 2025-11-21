@@ -14,8 +14,8 @@ const App = () => {
         <FlashProvider>
           <FlashMessage />
           <AppRoutes />
+          <BottomNav />
         </FlashProvider>
-        <BottomNav />
       </div>
     </BrowserRouter>
   );

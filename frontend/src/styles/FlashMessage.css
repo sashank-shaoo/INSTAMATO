@@ -27,6 +27,10 @@
   background: linear-gradient(90deg, #ff9800, #ffc107);
   box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
 }
+.flash-message.info {
+  background: linear-gradient(90deg, #1976d2, #42a5f5);
+  box-shadow: 0 0 15px rgba(66, 165, 245, 0.4);
+}
 
 @keyframes slideDown {
   from {

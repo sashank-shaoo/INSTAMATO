@@ -1,17 +1,13 @@
 import React from "react";
-import "../styles/FlashMessage.css";
+import "../styles/flashMessage.css";
 import { useFlash } from "../context/FlashContext";
 
 const FlashMessage = () => {
   const { flash } = useFlash();
 
-  if (!flash || !flash?.message) return null;
+  if (!flash) return null;
 
-  return (
-    <div className={`flash-message ${flash.type}`}>
-      <p>{flash.message}</p>
-    </div>
-  );
+  return <div className={`flash-message ${flash.type}`}>{flash.message}</div>;
 };
 
 export default FlashMessage;

@@ -4,19 +4,19 @@ const authMiddlewares = require("../middlewares/auth.middlewares");
 const likeController = require("../controllers/likes.controller");
 const saveFoodController = require("../controllers/saveFood.controller");
 const router = express.Router();
-const multer = require("multer");
 const validate = require("../middlewares/validate.middlewares");
+const { globalLimiter } = require("../middlewares/rateLimit.middlewares");
 const { foodItemSchema } = require("../validation/all.validation");
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-});
+const videoUpload = require("../middlewares/videoUpload.middlewares");
+const imageUpload = require("../middlewares/imageUpload.middlewares");
 
 //Post /api/food  - create food item [protected route - food partner]
 router.post(
   "/",
+  globalLimiter,
   authMiddlewares.authenticateFoodPartner,
-  upload.single("video"),
+  videoUpload,
+  imageUpload,
   validate(foodItemSchema),
   foodController.createFoodItem
 );

@@ -6,6 +6,7 @@ const authController = require("../controllers/auth.controller");
 const saveFoodController = require("../controllers/saveFood.controller");
 const validate = require("../middlewares/validate.middlewares");
 const { userUpdateSchema } = require("../validation/all.validation");
+const {globalLimiter} = require("../middlewares/rateLimit.middlewares");
 
 router.get(
   "/profile",
@@ -14,6 +15,7 @@ router.get(
 );
 router.put(
   "/profile/edit",
+  globalLimiter,
   authMiddlewares.authenticateUser,
   validate(userUpdateSchema),
   authController.updateUser

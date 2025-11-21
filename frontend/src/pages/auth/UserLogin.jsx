@@ -60,8 +60,9 @@ const UserLogin = () => {
         localStorage.setItem("user", JSON.stringify(response.data.user));
         localStorage.setItem("role", "user");
       }
-
-      showFlash("Logged in successfully ✅", "success");
+      const msg = response.data.message || "Login successful";
+      const type = response.data.type || "success";
+      showFlash(msg, type);
       navigate("/");
     } catch (err) {
       console.error("Login error:", err);
@@ -70,11 +71,14 @@ const UserLogin = () => {
         err.response?.status === 403 &&
         err.response.data.message === "Email not verified"
       ) {
-        showFlash("Email not verified. Please verify your email.", "error");
+        const msg = err.response.data.message || "Email not verified";
+        const type = err.response.data.type || "warning";
+        showFlash(msg, type);
         setResendAvailable(true);
       } else {
         const msg = err.response?.data?.message || "Login failed";
-        showFlash(msg, "error");
+        const type = err.response?.data?.type || "error";
+        showFlash(msg, type);
       }
     } finally {
       setLoading(false);
@@ -83,7 +87,6 @@ const UserLogin = () => {
 
   const handleResendEmail = async () => {
     if (!email) {
-      showFlash("Enter your email first", "error");
       return;
     }
 

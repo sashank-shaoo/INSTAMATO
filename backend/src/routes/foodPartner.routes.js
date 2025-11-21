@@ -4,6 +4,7 @@ const foodPartnerController = require("../controllers/food-partner.controller");
 const authController = require("../controllers/auth.controller");
 const authMiddlewares = require("../middlewares/auth.middlewares");
 const validate = require("../middlewares/validate.middlewares");
+const {globalLimiter} = require("../middlewares/rateLimit.middlewares");
 const { foodPartnerUpdateSchema } = require("../validation/all.validation");
 
 router.get("/", foodPartnerController.getAllFoodPartner);
@@ -17,6 +18,7 @@ router.get(
 //update food-partner
 router.put(
   "/:id/edit",
+  globalLimiter,
   authMiddlewares.authenticateFoodPartner,
   validate(foodPartnerUpdateSchema),
   authController.updateFoodPartner

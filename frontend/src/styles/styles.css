@@ -184,6 +184,34 @@ button:hover {
   align-items: flex-start;
 }
 
+.food-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  box-shadow: #383737 0px 4px 12px;
+}
+
+.name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.food-imgname {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.price {
+  font-size: 30px;
+  color: #888;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
 .action-buttons {
   display: flex;
   flex-direction: column;

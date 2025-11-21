@@ -1,77 +1,68 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../utils/axiosInstance";
-import { Link } from "react-router-dom";
+import "../../styles/general/home1.css"; // Keep your stylesheet
 import { useFlash } from "../../context/FlashContext";
-import "../../styles/general/home1.css";
 
 const Home1 = () => {
-  const [partners, setPartners] = useState([]);
-  const { showFlash } = useFlash();
+  const [foodItems, setFoodItems] = useState([]);
+  const {showFlash} = useFlash();
 
   useEffect(() => {
-    const fetchPartners = async () => {
+    const fetchFood = async () => {
       try {
-        const response = await axios.get("/food-partner");
-        const data = response.data?.data || response.data;
-        setPartners(data);
-      } catch {
-        showFlash("Error fetching food partners:", "error");
+        const response = await axios.get("/food");
+
+        const items = (response.data.foodItems || response.data).map(
+          (item) => ({
+            id: item._id,
+            name: item.name,
+            price: item.price,
+            image: item.image,
+          })
+        );
+        setFoodItems(items);
+      } catch (error) {
+        console.error("Error fetching food items", error);
+        const msg = error?.response?.data?.message || "Failed to Fetch Foods";
+        const type = error?.response?.data?.type || "error";
+        showFlash(msg, type);
       }
     };
-    fetchPartners();
-  }, [showFlash]);
+    fetchFood();
+  }, []);
 
   return (
     <div className="home1-container">
       <div className="home1-wrapper">
-        {/* Hero Section */}
-        <div className="hero-section">
-          <div className="hero-logo">
-            <img src="../../../public/icon.svg" alt="Logo" />
-            <p>InstaMato</p>
+        <div className="top-title">
+          <h2 className="home1-title">INSTAMATO</h2>
+          <div className="filter-section">
+            
           </div>
-
-          <h1 className="hero-heading">
-            <span>Discover, Taste & Share</span>
-          </h1>
-
-          <p className="hero-tagline">
-            Experience food like never before 🍔✨ — scroll through our short
-            food reels and explore dishes from local restaurants & chefs around
-            you.
-          </p>
-
-          {/* Floating 3D Food Model */}
-          <div className="floating-food"></div>
         </div>
-
-        {/* Partners Section */}
-        <div className="partners-section">
-          <h2 className="partners-heading">🍴 Our Food Partners</h2>
-          <p className="partners-subtext">
-            Collaborating with amazing creators and kitchens that bring flavor
-            to your screen.
-          </p>
-
-          <div className="partners-grid">
-            {partners.length === 0 ? (
-              <p className="loading-text">Loading partners...</p>
-            ) : (
-              partners.map((partner) => (
-                <div key={partner._id} className="partner-homecard">
-                  <div>
-                    <h2 className="partner-name">{partner.name}</h2>
-                  </div>
-                  <Link
-                    to={`/food-partner/${partner._id}`}
-                    className="partner-link">
-                    View Profile →
-                  </Link>
+        <div className="food-list-section">
+          {foodItems.length === 0 ? (
+            <p>Loading food items...</p>
+          ) : (
+            foodItems.map((food, idx) => (
+              <div className="food-card" key={food._id || idx}>
+                <img
+                  className="food-image"
+                  src={food.image || food.video}
+                  alt={food.name}
+                />
+                <div className="food-info">
+                  <span className="food-name">{food.name}</span>
+                  <span className="food-price">${food.price}</span>
                 </div>
-              ))
-            )}
-          </div>
+                <a href="#" className="add-cart-btn">
+                  add cart
+                </a>
+              </div>
+            ))
+          )}
         </div>
+        <div className="navbar-footer">FOODS</div>
       </div>
     </div>
   );

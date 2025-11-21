@@ -27,20 +27,20 @@ const UserRegister = () => {
     try {
       setLoading(true);
 
-      await axios.post("/auth/user/register", {
+     const response = await axios.post("/auth/user/register", {
         fullName,
         email,
         password,
       });
-
-      showFlash(
-        "Registration successful! Check your email to verify.",
-        "success"
-      );
-
-      navigate("/verify-pending"); // ✅ better UX page
-    } catch {
-      showFlash("Registration failed. Try again.", "error");
+      
+      const msg = response.data.message || "Registration successful! Check your email to verify.";
+      const type = response.data.type || "success";
+      showFlash(msg, type);
+      navigate("/verify-pending"); 
+    } catch (err) {
+      const msg = err.response?.data?.message || "Registration failed. Try again.";
+      const type = err.response?.data?.type || "error";
+      showFlash(msg, type);
     } finally {
       setLoading(false);
     }

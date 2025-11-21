@@ -5,7 +5,10 @@ async function likeFoodItem(req, res) {
     const userId = req.user._id;
     const { foodId } = req.params;
 
-    if (!foodId) return res.status(400).json({ message: "Food ID required" });
+    if (!foodId)
+      return res
+        .status(400)
+        .json({ type: "error", message: "Food ID required" });
 
     const existingLike = await likeDao.findLike({ user: userId, food: foodId });
 
@@ -21,14 +24,16 @@ async function likeFoodItem(req, res) {
       likesCount = result.likesCount;
     }
 
-    res.status(200).json({
+    return res.status(200).json({
+      type: "success",
       liked,
       likesCount,
       message: liked ? "Liked successfully" : "Unliked successfully",
     });
   } catch (error) {
     console.error("Error in likeFoodItem:", error);
-    res.status(500).json({
+    return res.status(500).json({
+      type: "error",
       message: "Internal Server Error",
       error: error.message,
     });

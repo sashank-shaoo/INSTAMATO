@@ -2,7 +2,10 @@ const foodPartnerDao = require("../dao/foodPartner.dao");
 const userDao = require("../dao/user.dao");
 const bcrypt = require("bcryptjs");
 const sendEmail = require("../services/email.services");
-const {generateVerificationToken} = require("../utils/generateVerificationToken");
+const {
+  generateVerificationToken,
+  createHash,
+} = require("../utils/generateVerificationToken");
 const jwt = require("jsonwebtoken");
 
 // -------------------USER AUTH CONTROLLERS-------------------//
@@ -75,9 +78,9 @@ async function registerUser(req, res) {
     // ✅ HANDLE: Mongoose validation errors
     if (error.name === "ValidationError") {
       const firstMessage = Object.values(error.errors)[0].message;
-      return res.status(400).json({
+      return res.status(422).json({
         type: "error",
-        message: firstMessage, 
+        message: firstMessage,
       });
     }
 
@@ -116,7 +119,7 @@ async function updateUser(req, res) {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       type: "success",
       message: "User updated successfully",
       user: updateUser,
@@ -124,12 +127,12 @@ async function updateUser(req, res) {
   } catch (error) {
     console.error("Error updating user:", error);
     if (error.name === "ValidationError") {
-      return res.status(400).json({
+      return res.status(422).json({
         type: "error",
         message: Object.values(error.errors)[0].message,
       });
     }
-    res.status(500).json({
+    return res.status(500).json({
       type: "error",
       message: "Failed to update user",
       error: error.message,
@@ -152,7 +155,7 @@ async function loginUser(req, res) {
     if (!user.isVerified) {
       return res
         .status(403)
-        .json({ type: "success", message: "Email not verified" });
+        .json({ type: "warning", message: "Email not verified" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -186,7 +189,9 @@ async function loginUser(req, res) {
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ type: "error", message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ type: "error", message: "Internal server error" });
   }
 }
 
@@ -217,7 +222,7 @@ async function registerFoodPartner(req, res) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const { hashToken, rawToken, expires } = generateVerificationToken(0.1667);
+    const { rawToken, hashToken, expires } = generateVerificationToken(0.1667);
 
     const partner = await foodPartnerDao.createFoodPartner({
       name,
@@ -248,7 +253,8 @@ async function registerFoodPartner(req, res) {
 
     return res.status(201).json({
       type: "success",
-      message: "FoodPartner registered successfully. Please verify your email.",
+      message:
+        "FoodPartner registered successfully ++. Please verify your email.",
     });
   } catch (error) {
     console.error("Error registering partner:", error);
@@ -263,7 +269,7 @@ async function registerFoodPartner(req, res) {
     // ✅ Mongoose validation errors
     if (error.name === "ValidationError") {
       const firstMessage = Object.values(error.errors)[0].message;
-      return res.status(400).json({
+      return res.status(422).json({
         type: "error",
         message: firstMessage,
       });
@@ -327,7 +333,17 @@ async function loginFoodPartner(req, res) {
     });
   } catch (error) {
     console.error("FoodPartner login error:", error);
-    res.status(500).json({ type: "error", message: "Internal server error" });
+    // ✅ Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const firstMessage = Object.values(error.errors)[0].message;
+      return res.status(422).json({
+        type: "error",
+        message: firstMessage,
+      });
+    }
+    return res
+      .status(500)
+      .json({ type: "error", message: "Internal server error" });
   }
 }
 
@@ -377,7 +393,7 @@ async function updateFoodPartner(req, res) {
   } catch (error) {
     console.error("Error updating in food partner : ", error);
     if (error.name === "ValidationError") {
-      return res.status(400).json({
+      return res.status(422).json({
         type: "error",
         message: Object.values(error.errors)[0].message,
       });
@@ -409,7 +425,9 @@ async function getCurrentUser(req, res) {
       });
     }
 
-    return res.status(404).json({ message: "Profile not found" });
+    return res
+      .status(404)
+      .json({ type: "error", message: "Profile not found" });
   } catch (error) {
     console.error("Error fetching current user:", error);
     res.status(500).json({
@@ -424,17 +442,27 @@ async function getCurrentUser(req, res) {
 async function verifyEmail(req, res) {
   try {
     const { token } = req.query;
-    if (!token) return res.status(400).send("Missing verification token");
+    if (!token) {
+      return res
+        .status(400)
+        .json({ type: "error", message: "Missing verification token" });
+    }
 
-    const tokenHash = generateVerificationToken.createHash(token);
+    const tokenHash = createHash(token);
 
     let account =
       (await userDao.getUserByVerificationToken(tokenHash)) ||
       (await foodPartnerDao.getFoodPartnerByVerificationToken(tokenHash));
-    if (!account) return res.status(400).send("Invalid or expired token");
+
+    if (!account)
+      return res
+        .status(400)
+        .json({ type: "error", message: "Invalid or expired token" });
 
     if (account.verificationTokenExpires < Date.now()) {
-      return res.status(400).send("Verification link expired");
+      return res
+        .status(400)
+        .json({ type: "warning", message: "Verification link expired" });
     }
 
     account.isVerified = true;
@@ -446,7 +474,9 @@ async function verifyEmail(req, res) {
     return res.redirect(`${process.env.FRONTEND_URL}/verified-success`);
   } catch (error) {
     console.error("Verification error:", error);
-    res.status(500).send("Verification failed");
+    return res
+      .status(500)
+      .json({ type: "error", message: "Verification failed" });
   }
 }
 
@@ -455,6 +485,7 @@ async function resendVerificationEmail(req, res) {
   const { email } = req.body;
 
   if (!email) {
+    console.log("email required");
     return res
       .status(400)
       .json({ type: "warning", message: "Email is required" });
@@ -518,7 +549,7 @@ async function resendVerificationEmail(req, res) {
 
     account.verificationLastSent = Date.now();
     await account.save();
-    
+
     return res.status(200).json({
       type: "success",
       message: "New verification email sent",

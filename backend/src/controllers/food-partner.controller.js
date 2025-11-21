@@ -10,11 +10,13 @@ async function getFoodPartnerById(req, res) {
 
     if (!foodPartner) {
       return res.status(404).json({
+        type: "error",
         message: "Food Partner not found",
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
+      type: "success",
       message: "Food Partner fetched successfully",
       foodPartner: {
         ...foodPartner.toObject(),
@@ -23,7 +25,8 @@ async function getFoodPartnerById(req, res) {
     });
   } catch (error) {
     console.error("Error Fetching foodPartner:", error);
-    res.status(500).json({
+    return res.status(500).json({
+      type: "error",
       message: "Failed to fetch foodPartner",
       error: error.message,
     });
@@ -35,15 +38,19 @@ async function getAllFoodPartner(req, res) {
     const foodPartners = await foodPartnerDao.getAllFoodPartners();
 
     if (!foodPartners || foodPartners.length === 0) {
-      return res.status(404).json({ message: "No food partners found" });
+      return res
+        .status(404)
+        .json({ type: "error", message: "No food partners found" });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
+      type: "success",
       message: "Food partners fetched successfully",
       data: foodPartners,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
+      type: "error",
       message: "Internal server error",
       error: error.message,
     });

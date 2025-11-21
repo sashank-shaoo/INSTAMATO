@@ -25,7 +25,9 @@ const VerifyEmail = () => {
         navigate("/verified-success");
       } catch (error) {
         setStatus("error",error);
-        setFlash("Verification link expired or invalid.", "error");
+        const message = error.response?.data?.message || "Verification link expired or invalid.";
+        const type = error.response?.data?.type || "error";
+        setFlash(message, type);
       }
     };
 

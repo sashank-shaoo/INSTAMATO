@@ -1,57 +1,74 @@
 const foodDao = require("../dao/foodItem.dao");
 const storageService = require("../services/storage.services");
+const imageUploadService = require("../services/image.services");
 const likeDao = require("../dao/likeFood.dao");
 const saveFoodDao = require("../dao/saveFood.dao");
 const { v4: uuid } = require("uuid");
 
-
-
 //__________CREATE FOOD ITEM__________//
 async function createFoodItem(req, res) {
-  if(!req.file){
-    return  res.status(400).json({
-      type: "error",
-      message: "Video file is required",
-    });
-  }
   try {
-    const uploadResult = await storageService.uploadVideo(
-      req.file.buffer,
+    // Validate video
+    if (!req.videoFile) {
+      return res.status(400).json({
+        type: "error",
+        message: "Video file is required",
+      });
+    }
+
+    // Upload video to ImageKit
+    const videoResult = await storageService.uploadVideo(
+      req.videoFile.buffer, // IMPORTANT FIX
       `${uuid()}.mp4`
     );
 
+    // Validate image
+    const imageFile = req.imageFile;
+    if (!imageFile) {
+      return res.status(400).json({
+        type: "error",
+        message: "Food image is required",
+      });
+    }
+
+    const imageUrl = imageFile.url || imageFile.secure_url;
+
+    // Create food item
     const foodItem = {
       name: req.body.name,
-      video: uploadResult.url,
+      price: req.body.price,
+      image: imageUrl,
+      video: videoResult.url,
       description: req.body.description,
       foodPartner: req.foodPartner._id,
     };
 
     const createdFoodItem = await foodDao.createFoodItem(foodItem);
 
-    res.status(201).json({
-      success: true,
+    return res.status(201).json({
+      type: "success",
       message: "Food item created successfully",
       food: createdFoodItem,
     });
   } catch (error) {
     console.error("Error creating food item:", error);
 
-    // ✅ Mongoose validation errors
     if (error.name === "ValidationError") {
       const firstMessage = Object.values(error.errors)[0].message;
-      return res.status(400).json({
+      return res.status(422).json({
         type: "error",
         message: firstMessage,
       });
     }
+
     return res.status(500).json({
-      success: false,
+      type: "error",
       message: "Failed to create food item",
       error: error.message,
     });
   }
 }
+
 
 //______________GET ALL FOOD ITEMS______________//
 async function getAllFoodItems(req, res) {
@@ -74,20 +91,20 @@ async function getAllFoodItems(req, res) {
       isSavedByUser: savedSet.has(f._id.toString()),
     }));
 
-    res.status(200).json({
+    return res.status(200).json({
+      type: "success",
       message: "Food items fetched successfully",
       foodItems: foodItemsWithLikeAndSaveStatus,
     });
   } catch (error) {
     console.error("Error fetching food items:", error);
-    res.status(500).json({
-      success: false,
+    return res.status(500).json({
+      type: "error",
       message: "Failed to fetch food items",
       error: error.message,
     });
   }
 }
-
 
 module.exports = {
   createFoodItem,

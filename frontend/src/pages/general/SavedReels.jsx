@@ -3,6 +3,7 @@ import axios from "../../utils/axiosInstance";
 import { Link } from "react-router-dom";
 import { useFlash } from "../../context/FlashContext";
 
+
 const SavedVideos = () => {
   const [videos, setVideos] = useState([]);
   const videoRef = useRef(new Map());
@@ -35,13 +36,16 @@ const SavedVideos = () => {
         }));
 
         setVideos(shuffleVideos(foodList));
+        if (foodList.length === 0) {
+          const msg = response?.data?.message || "No Saved Videos Found";
+          const type = response?.data?.type || "info";
+          showFlash(msg, type);
+        }
       } catch (error) {
         console.error("Error fetching saved videos:", error);
-        if (error.response?.status === 404) {
-          showFlash("No saved videos found", "info");
-        } else {
-          showFlash("Failed to fetch saved videos", "error");
-        }
+        const msg = error?.response?.data?.message || "Failed to fetch saved videos";
+        const type =error?.response?.data?.type || "error";
+        showFlash(msg, type);
       }
     };
 

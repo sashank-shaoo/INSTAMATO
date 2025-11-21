@@ -10,9 +10,8 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-    const data = error.response?.data;
-    const message = data?.message;
-    const type = data?.type || "error"; // ✅ use backend type or default to "error"
+    const message = error.response?.data?.message;
+    const backendType = error.response?.data?.type;
     const requestUrl = error.config?.url;
 
     const isAuthRoute =
@@ -22,21 +21,16 @@ axiosInstance.interceptors.response.use(
 
     if (status === 401 && !isAuthRoute) {
       showFlashGlobal("Session expired. Please log in again.", "error");
-
       setTimeout(() => (window.location.href = "/user/login"), 1500);
-    }
-
-    //show backend message if available
-    else if (message) {
-      showFlashGlobal(message, type);
-    }
-    // Generic error message for other cases
-    else {
+    } else if (message) {
+      showFlashGlobal(message, backendType || "error");
+    } else {
       showFlashGlobal("Something went wrong.", "error");
     }
 
     return Promise.reject(error);
   }
 );
+
 
 export default axiosInstance;

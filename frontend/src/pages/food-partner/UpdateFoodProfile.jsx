@@ -18,11 +18,13 @@ const FoodPartnerProfileEdit = () => {
   useEffect(() => {
     const fetchPartner = async () => {
       try {
-        const res = await axios.get(`/food-partner/${id}`);
-        const data = res.data.foodPartner || res.data;
+        const response = await axios.get(`/food-partner/${id}`);
+        const data = response.data.foodPartner || response.data;
         setPartner(data);
-      } catch {
-        showFlash("Failed to load partner data.", "error");
+      } catch (error) {
+        const message = error.response?.data?.message || "Failed to load partner data.";
+        const type = error.response?.data?.type || "error";
+        showFlash(message, type);
       }
     };
     fetchPartner();
@@ -37,17 +39,21 @@ const FoodPartnerProfileEdit = () => {
     setLoading(true);
     try {
       const { email: _email, password: _password, ...updatableData } = partner;
-      await axios.put(
+     const response = await axios.put(
         `/food-partner/${id}/edit`,
         updatableData
       );
-      showFlash("Partner profile updated successfully! Redirecting...", "success");
+      const message = response.data.message + " Redirecting..." || "Partner profile updated successfully! Redirecting...";
+      const type = response.data.type || "success";
+      showFlash(message, type);
       setTimeout(() => navigate(`/food-partner/${id}`), 1500);
     } catch(error) {
       if(error.response.status === 401) {
         showFlash("Please login as a food partner", "error");
       }else{
-        showFlash("Error on Updating partner profile", "error");
+        const message = error.response?.data?.message || "Error on Updating partner profile";
+        const type = error.response?.data?.type || "error";
+        showFlash(message, type);
       }
     } finally {
       setLoading(false);

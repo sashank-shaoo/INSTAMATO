@@ -31,6 +31,8 @@ const Home2 = () => {
         const foodList = response.data.foodItems.map((item) => ({
           id: item._id,
           name: item.name,
+          image: item.image,
+          price: item.price,
           videoUrl: item.video,
           description: item.description,
           foodPartner: item.foodPartner._id,
@@ -275,8 +277,18 @@ const Home2 = () => {
 
             <div className="overlay">
               <div className="overlay-bottom">
-                <p className="name" title={item.name}>
-                  {item.name}
+                <div className="food-imgname">
+                  <img
+                    className="food-image"
+                    src={item.image}
+                    alt={item.name}
+                  />
+                  <p className="name" title={item.name}>
+                    {item.name}
+                  </p>
+                </div>
+                <p className="price" title={item.price}>
+                  ${item.price}
                 </p>
                 <p className="description" title={item.description}>
                   {item.description}

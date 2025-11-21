@@ -4,6 +4,7 @@ import "../../styles/user/userProfileEdit.css";
 import { useNavigate } from "react-router-dom";
 import { useFlash } from "../../context/FlashContext";
 
+
 const UpdateUserProfile = () => {
   const navigate = useNavigate();
   const { showFlash } = useFlash();
@@ -38,11 +39,15 @@ const UpdateUserProfile = () => {
 
     try {
       const { email: _email, password: _password, ...updatableData } = user;
-      await axios.put("/user/profile/edit", updatableData);
-      showFlash("Profile updated successfully!", "success");
+    const response = await axios.put("/user/profile/edit", updatableData);
+      const msg = response.data.message + " Redirecting..." || "Profile updated successfully! Redirecting...";
+      const type = response.data.type || "success";
+      showFlash(msg, type);
       setTimeout(() => navigate("/profile"), 1500);
-    } catch {
-      return;
+    } catch (error) {
+      const msg = error.response?.data?.message || "Error on updating user profile";
+      const type = error.response?.data?.type || "error";
+      showFlash(msg, type);
     } finally {
       setLoading(false);
     }
