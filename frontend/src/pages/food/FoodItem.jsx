@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../../utils/axiosInstance";
 import "../../styles/foodItem/FoodStyle.css";
+import { useFlash } from "../../context/FlashContext";
 
 const FoodItem = () => {
+  const { showFlash } = useFlash();
   const { id } = useParams();
   const navigate = useNavigate();
   const [foodItem, setFoodItem] = useState(null);
@@ -18,12 +20,31 @@ const FoodItem = () => {
         setFoodItem(response.data.foodItem || response.data);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching food item:", error);
+        const msg = error.response?.data?.message;
+        const type = error.response?.data?.type;
+        showFlash(msg, type);
         setLoading(false);
       }
     };
     fetchFoodItem();
-  }, [id]);
+  }, [id, showFlash]);
+
+  useEffect(() => {
+    async function fetchQuantityFromCart() {
+      try {
+        const res = await axios.get("/cart");
+        const item = res.data.cart?.items.find((i) => i.food._id === id);
+
+        if (item) {
+          setQuantity(item.quantity);
+        }
+      } catch {
+       return null;
+      }
+    }
+
+    fetchQuantityFromCart();
+  }, [id, showFlash]);
 
   const handleIncrease = () => {
     setQuantity((prev) => prev + 1);
@@ -35,13 +56,30 @@ const FoodItem = () => {
     }
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (quantity === 0) {
-      alert("Please select quantity first!");
+      showFlash("Please select quantity first!", "error");
       return;
     }
-    // Add your cart logic here
-    console.log(`Added ${quantity} of ${foodItem.name} to cart`);
+
+    try {
+      await axios.put("/cart/update", { foodId: id, quantity });
+      showFlash("Cart updated successfully", "success");
+    } catch (err) {
+      if (err.response?.status === 404) {
+        try {
+          await axios.post("/cart/add", { foodId: id, quantity });
+          showFlash("Added to cart", "success");
+        } catch {
+          // Errors handled globally 
+        }
+      } else {
+        showFlash(
+          err.response?.data?.message || "Failed to update cart",
+          "error"
+        );
+      }
+    }
   };
 
   const handlePreviewClick = (e) => {
@@ -135,8 +173,11 @@ const FoodItem = () => {
           </div>
 
           {/* Add to Cart Button */}
-          <button className="add-to-cart-btn" onClick={handleAddToCart}>
-            ADD TO CART
+          <button
+            className="add-to-cart-btn"
+            disabled={quantity === 0}
+            onClick={handleAddToCart}>
+            {quantity === 0 ? "SELECT QUANTITY" : "ADD TO CART"}
           </button>
         </div>
       </div>

@@ -291,6 +291,10 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+.add-to-cart-btn:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
 
 /* Loading & Error States */
 .loading-spinner,
@@ -306,7 +310,6 @@
   .food-item-wrapper {
     padding: 0 12px;
   }
-
   .food-details-card {
     padding: 18px;
   }
@@ -322,5 +325,15 @@
 
   .food-price {
     font-size: 1rem;
+  }
+}
+@media (max-width: 380px) {
+  .quantity-controls{
+    padding: 4px 7px;
+  }
+}
+@media (max-width: 340px) {
+  .quantity-controls{
+    padding: 2px 4px;
   }
 }

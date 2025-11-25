@@ -11,6 +11,7 @@ const authRoutes = require("./routes/auth.routes");
 const foodRoutes = require("./routes/food.routes");
 const foodPartnerRoutes = require("./routes/foodPartner.routes");
 const userRoutes = require("./routes/user.routes");
+const cartRoutes = require("./routes/cart.routes");
 
 const app = express();
 
@@ -72,5 +73,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/food", foodRoutes);
 app.use("/api/food-partner", foodPartnerRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/cart", cartRoutes);
 
 module.exports = app;

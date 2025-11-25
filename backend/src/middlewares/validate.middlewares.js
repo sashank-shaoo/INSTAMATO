@@ -1,11 +1,5 @@
 const validate = (schema) => {
   return (req, res, next) => {
-    // 🔍 Debug: print the schema being used
-    console.log("\n========== VALIDATION DEBUG ==========");
-    console.log("USING SCHEMA:", schema.describe().keys);
-    console.log("REQ BODY BEFORE VALIDATION:", req.body);
-    console.log("=======================================\n");
-
     const options = {
       abortEarly: false, // return all errors
       allowUnknown: false, // do not allow extra fields

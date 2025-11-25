@@ -12,7 +12,6 @@ const Home1 = () => {
     const fetchFood = async () => {
       try {
         const response = await axios.get("/food");
-
         const items = (response.data.foodItems || response.data).map(
           (item) => ({
             id: item._id,
