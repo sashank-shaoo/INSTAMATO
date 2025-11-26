@@ -4,47 +4,47 @@ Instamato is a full-stack food delivery platform inspired by Zomato — allowing
 
 📂 Instamato Repository Structure & Documentation
 1. Root Files
-.gitignore
+   .gitignore
 
-Specifies folders/files excluded from version control (e.g., .env, node_modules).
+   Specifies folders/files excluded from version control (e.g., .env, node_modules).
 
-README.md
+   README.md
 
 Project introduction and preview.
 
-TODO.md
+  TODO.md
 
-Tracks minor frontend/UI changes and pending tasks.
+  Tracks minor frontend/UI changes and pending tasks.
 
 2. Backend (/backend)
-Key Files
-Server.js
+  Key Files
+  Server.js
 
-Entry point for backend server; loads environment variables, sets up the main app, connects to database, and starts listening on port 3000.
+  Entry point for backend server; loads environment variables, sets up the main app, connects to database, and starts listening on port 3000.
 
-package.json / package-lock.json
+  package.json / package-lock.json
 
-NodeJS application definition, dependencies (Express, Mongoose, JWT, Multer, Nodemailer, etc.), and scripts.
+  NodeJS application definition, dependencies (Express, Mongoose, JWT, Multer, Nodemailer, etc.), and scripts.
 
 Main App
-src/app.js
+  src/app.js
 
-Configures middleware (CORS, Helmet security, cookie parser, JSON body parser).
+  Configures middleware (CORS, Helmet security, cookie parser, JSON body parser).
 
-Loads routes for authentication, food, food partners, users, and health check.
+  Loads routes for authentication, food, food partners, users, and health check.
 
 Structure
 controllers/
 
-Handles API logic for:
+ Handles API logic for:
 
-Authentication flows (auth.controller.js) – registration, login, email verification, user/food partner updates.
+  Authentication flows (auth.controller.js) – registration, login, email verification, user/food partner updates.
 
-Food items (food.controller.js) – creation/upload, fetching all items.
+  Food items (food.controller.js) – creation/upload, fetching all items.
 
-Food partners (food-partner.controller.js) – retrieve partners & their food items.
+  Food partners (food-partner.controller.js) – retrieve partners & their food items.
 
-Likes & saved foods (likes.controller.js, saveFood.controller.js) – like/unlike, save/unsave food items, retrieve saved videos.
+  Likes & saved foods (likes.controller.js, saveFood.controller.js) – like/unlike, save/unsave food items, retrieve saved videos.
 
 Users (user.controller.js) – fetch user profile details.
 
@@ -58,11 +58,11 @@ Initializes and manages MongoDB connection.
 
 middlewares/
 
-Authentication and role-checking (auth.middlewares.js).
+  Authentication and role-checking (auth.middlewares.js).
 
-API rate-limiting (rateLimit.middlewares.js).
+  API rate-limiting (rateLimit.middlewares.js).
 
-Limits for resending verification emails (resendLimiter.middlewares.js).
+  Limits for resending verification emails (resendLimiter.middlewares.js).
 
 3. Frontend (/frontend)
 Key Files
